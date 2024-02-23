@@ -1,8 +1,44 @@
 <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #ffc0cb;">
   <div class="container-fluid">
 
+    {% if user.is_authenticated %}
+      {% if user.first_name == "Amanda" %}
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'dogs' %}">Dogs</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'dog_diary' %}">Diary</a></li>
+          </ul>
+      {% else %}
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Main</a>
+            <ul class="dropdown-menu">
+              <li><a class="nav-link active" href="{% url 'notes' %}">Notes</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Games</a>
+            <ul class="dropdown-menu">
+              <li><a class="nav-link active" href="{% url 'wordle' %}">Wordle</a></li>
+              <li><a class="nav-link active" href="{% url 'wordle_test' %}">Past</a></li>
+              <li><a class="nav-link active" href="{% url 'word' %}">Word</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Dogs</a>
+            <ul class="dropdown-menu">
+              <li><a class="nav-link active" href="{% url 'dogs' %}">Dogs</a></li>
+              <li><a class="nav-link active" href="{% url 'dog_diary' %}">Diary</a></li>
+            </ul>
+          </li>
+
+
         </ul>
+      {% endif %}
+   {% else %}
+      <ul class="nav justify-content-end">
+        <li class="nav-item"><a class="nav-link active" href="{% url 'login' %}">Login</a></li>
+      </ul>
+   {% endif %}
   </div>
 </nav>

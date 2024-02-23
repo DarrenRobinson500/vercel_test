@@ -1,0 +1,76 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<style>
+    .green {background-color:green;}
+    .amber {background-color:orange;}
+    .grey {background-color:grey;}
+</style>
+
+<div class="row">
+    <div class="col-sm-4">
+        <h2>Solution: {{word}}</h2>
+        <table class='table table-sm' style="text-align: center;">
+            {% for word in input_array %}
+                <tr>
+                {% for letter, colour in word %}
+                    <td style="background-color: {{ colour }}; color: white; font-weight: bold;">{{ letter | capfirst }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        Future Average Score: <b>{{ score }}</b> (originally 3.47)<br>
+        {{ message }}<br>
+        {{ message_2 }}<br><br>
+        <a href="{% url 'wordle_test' %}" class='btn btn-yak'>Redo</a><br>
+    </div>
+    <div class="col-sm-5">
+        <h2>Second Word</h2>
+        <div class="row">
+            <div class="col-sm-4">
+                {% for word, count in second_word_array_1 %}
+                    <a href="{% url 'wordle_second' word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% endfor %}<br>
+            </div>
+            <div class="col-sm-4">
+                {% for word, count in second_word_array_2 %}
+                    <a href="{% url 'wordle_second' word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% endfor %}<br>
+            </div>
+            <div class="col-sm-4">
+                {% for word, count in second_word_array_3 %}
+                    <a href="{% url 'wordle_second' word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% endfor %}<br>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% for x, number in attempts_range %}
+        {% if number > 1 %}
+        <div class="col-sm-2">
+            <b>{{ x }} att<br>({{ number }})</b><br>
+            {% for word in words %}
+                {% if word.attempts == x %}
+                    <a href="{% url 'wordle_test' word.id %}"
+                    {% if todays == word.guess_2 or todays == word.guess_3 or todays == word.guess_4 or todays == word.guess_5 or todays == word.guess_6 %}
+                        style="color: red;"
+                    {% endif %}
+                    >{{ word.upper }}</a>{% if word.last_reviewed %} {{ word.last_reviewed }}{% endif %}<br>
+
+                    {% if x == 7 %}
+                        {{ word.guess_1 }}, {{ word.guess_2 }}, {{ word.guess_3 }}, {{ word.guess_4 }}, {{ word.guess_5 }}, {{ word.guess_6 }}<br>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endfor %}
+
+
+</div>
+
+
+
+
+{% endblock %}

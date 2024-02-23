@@ -1,0 +1,82 @@
+{% extends 'base.html'%}
+{% block content %}
+
+
+    {% if edit_mode %}
+        <h1>Edit Mode</h1><br>
+        <form action="{% url 'dog_edit' dog.id %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
+         </form>
+    {% endif %}
+
+    <h1>{{ title }}</h1><br>
+    <a href="{% url 'dog_diary' %}">Diary</a>
+
+     <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Dogs</th>
+          <th scope="col">Owners</th>
+          <th scope="col">Notes</th>
+            {% if show_images %}
+              <th scope="col">Image</th>
+            {% endif %}
+          <th style="min-width: 250px;">Bookings</th>
+        </tr>
+      </thead>
+     <tbody>
+        {% for item in objects %}
+        <tr>
+            <td><a href="{% url 'dog_edit' item.id %}">{{ item.name }} ({{ item.id }})</a></td>
+            <td>
+                {% if item.owners_link %}
+                    <a href="{% url 'note' item.owners_link.id %}">{{ item.owners_link.heading }}</a>
+                {% else %}
+                    {{ item.owners }}
+                {% endif %}
+                {% if item.owners_number %}
+                    <br><a href="tel:+{{ item.mobile }}">{{ item.owners_number }}</a>
+                {% endif %}
+            </td>
+            <td>
+                {% if item.notes %} {{ item.notes | safe}}<br> {% endif %}
+                {% if item.approved != "Yes" %}Approved: {{ item.approved }}{% endif %}
+
+            </td>
+                    {% if show_images %}
+                    <td>
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" height="120"/>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+            <td>
+                {% for booking in item.bookings %}
+                    {% if booking.in_future %}
+                        {{ booking.short_name }}<br>
+                    {% endif %}
+                {% endfor %}
+                <a class="btn btn-yak btn-sm" href="{% url 'booking' item.id %}">Add booking</a>
+            </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    {% if not edit_mode %}
+        <h1>Add a Dog</h1><br>
+        <form action="{% url 'dogs' %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
+         </form>
+     {% endif %}
+            <br><br>
+            <br><br>
+
+{% endblock %}

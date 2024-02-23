@@ -1,0 +1,39 @@
+{% extends 'base.html'%}
+{% block content %}
+
+     <h1 class="form-label">{{ title }}</h1><br>
+
+     <form action="{% url 'diary' %}" class="form-inline my-2 my-lg-0" method="POST">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-yak">Add diary entry</button>
+    </form>
+
+<hr>
+
+
+
+     <hr>
+
+     <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Notes ({{ count }} entries)</th>
+          <th scope="col">Control</th>
+        </tr>
+      </thead>
+     <tbody>
+        {% for item in objects %}
+        <tr>
+            <td>[{{ item.date }}] {{ item.text | safe }}</td>
+            <td><a class="btn btn-yak" href="{% url 'delete_diary' item.id %}">Delete</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Dog Diary</h1>
+
+{% for duration in durations %}
+    <a class="btn btn-yak" href="{% url 'dog_duration' duration %}"
+       {% if general.dog_diary_days == duration %}style="border: 2px solid black"{% endif %}
+    >{{ duration }} days</a>
+
+
+{% endfor %} <br><br>
+
+    <table class="table">
+        <thead class="table-light">
+            <th>Day</th>
+            <th>Count</th>
+            <th>Dogs</th>
+        </thead>
+
+        {% for entry in dog_diary %}
+        <tr>
+            <td>{{ entry.date | date:"j M - D"}}</td>
+            <td>{{ entry.bookings | length }}</td>
+            <td>
+                {% for booking in entry.bookings %}
+                {{ booking.dog }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {{ chart | safe }}
+    {{ chart_pie | safe }}
+
+
+{% endblock %}
