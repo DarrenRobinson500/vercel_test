@@ -17,13 +17,13 @@
             <th>Dogs</th>
         </thead>
 
-        {% for entry in dog_diary %}
+        {% for dog_day, dogs in dog_diary %}
         <tr>
-            <td>{{ entry.date | date:"j M - D"}}</td>
-            <td>{{ entry.bookings | length }}</td>
+            <td>{{ dog_day | date:"j M - D"}}</td>
+            <td>{{ dogs | length }}</td>
             <td>
-                {% for booking in entry.bookings %}
-                {{ booking.dog }}{% if not forloop.last %},{% endif %}
+                {% for dog in dogs %}
+                {{ dog }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}
             </td>
         </tr>

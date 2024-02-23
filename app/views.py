@@ -115,16 +115,19 @@ def dog_edit(request, id):
                'options':options, 'form':form}
     return render(request, 'dog.html', context)
 
-def dog_diary(request):
+def dog_diary_old(request):
     if not request.user.is_authenticated: return redirect("login")
     general = General.objects.get(name="main")
     today = date.today()
 
     bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
+    print("Dog Diary Bookings:", bookings)
+
     dog_diary = []
     for x in range(general.dog_diary_days):
         day = today + timedelta(days=x)
         day_bookings = bookings.filter(start_date__lte=day).filter(end_date__gte=day)
+        print("Dog Diary View (Day):", day, day_bookings)
         new = Dog_Diary(day, day_bookings)
         dog_diary.append(new)
     general = General.objects.get(name="main")
@@ -133,7 +136,28 @@ def dog_diary(request):
     context = {'dog_diary': dog_diary, 'durations': durations, 'general': general}
     return render(request, 'dog_diary.html', context)
 
+def dog_diary(request):
+    if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
+    today = date.today()
 
+    dog_diary = []
+    for x in range(general.dog_diary_days):
+        day = today + timedelta(days=x)
+        dog_diary.append([day, []])
+
+
+    bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
+
+    for booking in bookings:
+        for dog_day in dog_diary:
+            # print(dog_day[0], booking.start_date)
+            if booking.start_date <= dog_day[0] <= booking.end_date:
+                dog_day[1].append(booking.dog.name)
+
+    durations = [30, 60, 90, 120, 150, 180, 360]
+    context = {'dog_diary': dog_diary, 'durations': durations, 'general': general}
+    return render(request, 'dog_diary.html', context)
 
 def dog_duration(request, dur):
     general = General.objects.get(name="main")
