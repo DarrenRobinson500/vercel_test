@@ -40,6 +40,37 @@ def logout_user(request):
     return redirect("login")
 
 # -----------------------------
+# --------UTILITIES------------
+# -----------------------------
+
+def downloadpage(request):
+    context = {}
+    return render(request, 'down_load.html', context)
+
+def downloadexcel(request):
+    if not request.user.is_authenticated: return redirect("login")
+    if not socket.gethostname() == "Mum_and_Dads": return redirect("notes")
+
+    writer = pd.ExcelWriter('my_data.xlsx', engine='xlsxwriter')
+    all_models = \
+        [Category, Diary, Note, Quote, Birthday, Dog, Booking, Event, TH, Player, Shopping, Shop, Timer, TimerElement,
+         New_Tide, Tide_Date, Weather, Wordle, TennisMatch, TennisGame, General]
+
+    print("All models:", all_models)
+    for count, model in enumerate(all_models, 1):
+        print("Saving:", model)
+        data = model.objects.all()
+        df = pd.DataFrame(list(data.values()))
+        df.to_excel(writer, sheet_name=f'{model.string_name}', index=False)
+    writer.close()
+
+    # Create an HttpResponse object with the Excel file
+    response = HttpResponse(open('my_data.xlsx', 'rb').read(), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="my_data.xlsx"'
+
+    return response
+
+# -----------------------------
 # --------NOTES----------------
 # -----------------------------
 
@@ -52,8 +83,10 @@ def dogs(request):
         if form.is_valid(): form.save()
     objects = Dog.objects.all()
     objects = sorted(objects, key=lambda d: d.next_booking())
+    print("Dogs", objects)
     options = ["Yes", "No", "Limited"]
     show_images = socket.gethostname() == "Mum_and_Dads"
+    show_images = False
 
     count = len(objects)
     context = {'objects': objects, 'title': "Dogs", 'count': count, "form": form, "edit_mode": False, 'people': people(),

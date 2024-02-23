@@ -10,7 +10,7 @@
         {% endfor %}<br>
     {% endif %}
     {% if home_pc %}
-        <a href="{% url 'downloadpage' %}" class="btn btn-yak">Download</a>
+        <a href="{% url 'downloadpage' %}" class="btn btn-yak">Download All</a>
     {% endif %}
     <h3>Edit Note</h3>
      <form action="{% url 'edit_note' object.id %}" class="form-inline my-2 my-lg-0" method="POST">

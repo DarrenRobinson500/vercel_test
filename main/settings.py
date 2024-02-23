@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from decouple import config
 from dotenv import load_dotenv
-
+from .ckeditor import customColorPalette, CKEDITOR_5_CONFIGS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
