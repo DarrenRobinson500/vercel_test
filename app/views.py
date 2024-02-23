@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.http import HttpResponse
 # import openpyxl as xl
 from .forms import *
-# import pandas as pd
 # import requests
+from pandas import ExcelWriter
+
 import socket
 
 Event_Tuple = namedtuple('Event_Tuple', ['date', 'description'])
@@ -51,7 +52,7 @@ def downloadexcel(request):
     if not request.user.is_authenticated: return redirect("login")
     if not socket.gethostname() == "Mum_and_Dads": return redirect("notes")
 
-    writer = pd.ExcelWriter('my_data.xlsx', engine='xlsxwriter')
+    writer = ExcelWriter('my_data.xlsx', engine='xlsxwriter')
     all_models = \
         [Category, Diary, Note, Quote, Birthday, Dog, Booking, Event, TH, Player, Shopping, Shop, Timer, TimerElement,
          New_Tide, Tide_Date, Weather, Wordle, TennisMatch, TennisGame, General]
