@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ckeditor_5',
     'app',
 ]
 
@@ -73,22 +74,17 @@ WSGI_APPLICATION = 'main.wsgi.application'
 #     }
 # }
 
+DB_PASSWORD = os.environ.get("db_password_railway")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
         'USER': 'postgres',
-        'PASSWORD': 'BE65Acdga6-egB-2dG1f4fb63E5eae3D',
-        'HOST': 'roundhouse.proxy.rlwy.net',
-        'PORT': '56605',
+        'PASSWORD': DB_PASSWORD,
+        'HOST': 'monorail.proxy.rlwy.net',
+        'PORT': '43933',
     }
 }
-
-
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -111,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Australia/NSW'
 
 USE_I18N = True
 
