@@ -93,6 +93,13 @@ def dog_diary(request):
         day_bookings = bookings.filter(start_date__lte=day).filter(end_date__gte=day)
         new = Dog_Diary(day, day_bookings)
         dog_diary.append(new)
+    general = General.objects.get(name="main")
+    durations = [30, 60, 90, 120, 150, 180, 360]
+
+    context = {'dog_diary': dog_diary, 'durations': durations, 'general': general}
+    return render(request, 'dog_diary.html', context)
+
+
 
 def dog_duration(request, dur):
     general = General.objects.get(name="main")
