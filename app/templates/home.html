@@ -2,6 +2,10 @@
 {% block content %}
 <h1>Home</h1>
 
+{% if home_pc %}
+    <a class="btn btn-yak btn-sm" href="{% url 'load_data' %}">Load Data from Excel</a><br><br>
+{% endif %}
+
 {% for item in nav_bar_items %}
     <a class="btn btn-yak btn-sm" href="{% url item %}" style="margin-top: 10px">{{ item | capfirst }}</a>
 {% endfor %}

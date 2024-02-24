@@ -19,14 +19,14 @@
      <table class="table">
       <thead>
         <tr>
-          <th scope="col">Notes ({{ count }} entries)</th>
+          <th scope="col">Entries</th>
           <th scope="col">Control</th>
         </tr>
       </thead>
      <tbody>
         {% for item in objects %}
         <tr>
-            <td>[{{ item.date }}] {{ item.text | safe }}</td>
+            <td><span style="color: #808080;">{{ item.entry_date }}</span>{{ item.text | safe }}</td>
             <td><a class="btn btn-yak" href="{% url 'diary_delete' item.id %}">Delete</a></td>
         </tr>
         {% endfor %}

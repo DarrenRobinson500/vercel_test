@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.http import HttpResponse
-# import openpyxl as xl
+import openpyxl as xl
 from .forms import *
 # import requests
 from pandas import ExcelWriter
@@ -15,7 +15,8 @@ Dog_Diary = namedtuple('Dog_Diary', ['date', 'bookings'])
 nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "dogs", "dog_diary"]
 
 def home(request):
-    context = {"nav_bar_items": nav_bar_items}
+    home_pc = socket.gethostname() == "Mum_and_Dads"
+    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc}
     return render(request, "home.html", context)
 
 # -----------------------------
@@ -72,11 +73,89 @@ def downloadexcel(request):
 
     return response
 
+def load_data(request):
+    file = "excel/data.xlsx"
+    wb = xl.load_workbook(file)
+    sheet_names = wb.sheetnames
+
+    context = {"sheet_names": sheet_names, }
+    return render(request, "load_data.html", context)
+
+def load_data_ind(request, model_name):
+    # model_name = "Dog"
+    file = "excel/data.xlsx"
+    wb = xl.load_workbook(file)
+    sheet = wb[model_name]
+
+    model = None
+    for model_x in [Category, Diary, Note, Quote, Birthday, Dog, Booking, Event, TH, Player, Shopping, Shop, Timer, TimerElement,
+         New_Tide, Tide_Date, Weather, Wordle, TennisMatch, TennisGame, General]:
+        if model_x.string_name == model_name:
+            model = model_x
+
+    column_headings = []
+    for cell in sheet[1]: column_headings.append(cell.value)
+
+    table_data = []
+    for row in sheet.iter_rows():
+        row_data = []
+        for cell in row:
+            row_data.append(cell.value)
+        current_id = row[0].value
+        print("Current id:", current_id)
+        existing_records = 1
+        if type(current_id) is int:
+            existing_records = len(model.objects.filter(id=current_id))
+        if existing_records == 0:
+            add_record(model, column_headings, row_data)
+        row_data.append(existing_records)
+        table_data.append(row_data)
+
+    # Loop through again to include the links
+    link_pos = None
+    if model.string_name == "Note":
+        link_pos = column_headings.index("parent_id")
+        link_model = Note
+        link_name = "parent"
+    if model.string_name == "Booking":
+        link_pos = column_headings.index("dog_id")
+        link_model = Dog
+        link_name = "dog"
+    if link_pos:
+        for row in sheet.iter_rows():
+            current_id = row[0].value
+            if type(current_id) is int:
+                link_id = row[link_pos].value
+                if type(link_id) is int:
+                    create_link(model, link_model, link_name, current_id, link_id)
+
+    context = {"heading": model_name, "table_data": table_data,}
+    return render(request, "table.html", context)
+
+def add_record(model, headings, values):
+    new_record = model(id=values[0])
+    new_record.save()
+    for field_name, value in zip(headings, values):
+        if field_name[-3:] == "_id":
+            print("Foreign key detected:", field_name)
+        elif hasattr(model, field_name):
+            setattr(new_record, field_name, value)
+            print("Update data:", model, field_name, value)
+        else:
+            print(f"{field_name} does not exist in {model.string_name}")
+    new_record.save()
+
+def create_link(own_model, link_model, field, own_id, link_id, ):
+    record = own_model.objects.get(id=own_id)
+    link = link_model.objects.get(id=link_id)
+    setattr(record, field, link)
+    record.save()
+
 # -----------------------------
 # --------DOGS----------------
 # -----------------------------
 
-def dogs(request):
+def dogs_old(request):
     if not request.user.is_authenticated: return redirect("login")
     form = DogForm()
 
@@ -86,14 +165,42 @@ def dogs(request):
     objects = Dog.objects.all()
     objects = sorted(objects, key=lambda d: d.next_booking())
     print("Dogs", objects)
-    options = ["Yes", "No", "Limited"]
-    show_images = socket.gethostname() == "Mum_and_Dads"
     show_images = False
 
     count = len(objects)
     context = {'objects': objects, 'title': "Dogs", 'count': count, "form": form, "edit_mode": False, 'people': people(),
-               'options':options, 'show_images': show_images}
+               'show_images': show_images}
     return render(request, 'dog.html', context)
+
+def dogs(request):
+    if not request.user.is_authenticated: return redirect("login")
+    form = DogForm()
+    if request.method == 'POST':
+        form = DogForm(request.POST, request.FILES)
+        if form.is_valid(): form.save()
+    dogs = Dog.objects.all()
+    dogs = sorted(dogs, key=lambda d: d.next_booking())
+    table_info = []
+    for dog in dogs:
+        dog_info = [dog.name, dog.id, dog.owners, dog.owners_number, dog.notes, dog.approved, []]
+        table_info.append(dog_info)
+
+    today = date.today()
+    bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
+    for booking in bookings:
+        for dog_info in table_info:
+            print(dog_info[1], booking.dog.id)
+            if dog_info[1] == booking.dog.id:
+                dog_info[6].append(booking.short_name() + "\n")
+
+    print("Dogs Info")
+    for dog_info in table_info:
+        print(dog_info)
+
+    context = {'table_info': table_info, 'title': "Dogs", "form": form, "edit_mode": False, 'people': people()}
+    return render(request, 'dog_simple.html', context)
+
+
 
 def dog_edit(request, id):
     print("A")
@@ -302,7 +409,7 @@ def diary(request):
         form = DiaryForm(request.POST or None)
         if form.is_valid(): form.save()
     form = DiaryForm()
-    objects = Diary.objects.all().order_by("-date")
+    objects = Diary.objects.all().order_by("-entry_date")
     count = len(objects)
     context = {'objects': objects, 'title': "Diary", 'count': count, "form": form}
     return render(request, 'diary.html', context)

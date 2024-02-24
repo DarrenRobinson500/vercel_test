@@ -88,12 +88,13 @@ class Diary(Model):
     # text = RichTextField(null=True, blank=True)
     text = CKEditor5Field('Text', null=True, blank=True)
     # text = CKEditor5Field('Text', config_name='extends', null=True)
+    entry_date = DateField(null=True, blank=True)
     date = DateField(auto_now_add=True, null=True)
 
     class Meta:
         verbose_name_plural = "Diary Entries"
 
-    def __str__(self): return "[" + str(self.date) + "] " + self.text[0:50]
+    def __str__(self): return "[" + str(self.entry_date) + "] " + self.text[0:50]
 
 class Note(Model):
     choices = [("Weekly", "Weekly"), ("Fortnightly", "Fortnightly"), ("Monthly", "Monthly"), ]

@@ -3,16 +3,6 @@
 
 
     <h1>{{ title }}</h1><br>
-    {% if edit_mode %}
-        <h1>Edit Mode</h1><br>
-        <form action="{% url 'dog_edit' dog.id %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
-         </form>
-    {% endif %}
-
      <table class="table">
       <thead>
         <tr>
@@ -45,16 +35,6 @@
         {% endfor %}
       </tbody>
     </table>
-
-    {% if not edit_mode %}
-        <h1>Add a Dog</h1><br>
-        <form action="{% url 'dogs' %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
-         </form>
-     {% endif %}
 
 
             <br><br>

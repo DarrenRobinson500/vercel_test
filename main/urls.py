@@ -17,8 +17,8 @@ urlpatterns = [
     path('logout/', logout_user, name="logout"),
     # path("utility", utility, name="utility"),
     # path("utility_2", utility_2, name="utility_2"),
-    # path("load_data", load_data, name="load_data"),
-    # path("load_data_ind/<model_name>", load_data_ind, name="load_data_ind"),
+    path("load_data", load_data, name="load_data"),
+    path("load_data_ind/<model_name>", load_data_ind, name="load_data_ind"),
     path('downloadexcel', downloadexcel, name="downloadexcel"),
     path('downloadpage', downloadpage, name="downloadpage"),
 

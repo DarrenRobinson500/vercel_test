@@ -55,8 +55,13 @@ class CategoryForm(ModelForm):
 class DiaryForm(ModelForm):
     class Meta:
         model = Diary
-        fields = ['text', ]
+        fields = ['text', 'entry_date']
         labels = {'text': "",}
+        widgets = {
+            'entry_date': DateInput(attrs={'class': 'form-control', 'type':'date'}),
+        }
+
+# <input type="date" name="start_date" class="form-control" style="min-width:200px">
 
 class NoteForm(ModelForm):
     class Meta:
