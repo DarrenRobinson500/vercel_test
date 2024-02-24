@@ -74,7 +74,7 @@ def add_wordle(request, word):
             wordle.save()
     else:
         messages.success(request, f"'{word}' wasn't found in database")
-    return redirect("wordle_test")
+    return redirect("wordle_remaining")
 
 def wordle_clear(request, id):
     object = Wordle.objects.get(id=id)
@@ -213,7 +213,7 @@ def get_max_attempts():
             if category['attempts'] > max_attempts: max_attempts = category['attempts']
     return max_attempts
 
-def wordle_test(request, id=None):
+def wordle_remaining(request, id=None):
     if not request.user.is_authenticated: return redirect("login")
     wordle = None
     # input_array = None
@@ -273,7 +273,7 @@ def wordle_test(request, id=None):
                'second_word_array_1': second_word_array_1, 'second_word_array_2': second_word_array_2, 'second_word_array_3': second_word_array_3,
                "message": message, "message_2": message_2,
                "todays": todays_word}
-    return render(request, "wordle_test.html", context)
+    return render(request, "wordle_remaining.html", context)
 
 def wordle_second(request, word):
     wordle = Wordle.objects.get(word=word)

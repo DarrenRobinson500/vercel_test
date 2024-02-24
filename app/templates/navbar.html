@@ -1,5 +1,6 @@
 <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #ffc0cb;">
   <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'home' %}"><b>Home</b></a>
 
     {% if user.is_authenticated %}
       {% if user.first_name == "Amanda" %}
@@ -13,13 +14,18 @@
           <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Main</a>
             <ul class="dropdown-menu">
               <li><a class="nav-link active" href="{% url 'notes' %}">Notes</a></li>
+              <li><a class="nav-link active" href="{% url 'diary' %}">Diary</a></li>
+              <li><a class="nav-link active" href="{% url 'events' %}">Events</a></li>
+              <li><a class="nav-link active" href="{% url 'quotes' %}">Quotes</a></li>
+              <li><a class="nav-link active" href="{% url 'birthdays' %}">Birthdays</a></li>
+              <li><a class="nav-link active" href="{% url 'shopping' %}">Shopping</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Games</a>
             <ul class="dropdown-menu">
               <li><a class="nav-link active" href="{% url 'wordle' %}">Wordle</a></li>
-              <li><a class="nav-link active" href="{% url 'wordle_test' %}">Past</a></li>
+              <li><a class="nav-link active" href="{% url 'wordle_remaining' %}">Wordle Remaining</a></li>
               <li><a class="nav-link active" href="{% url 'word' %}">Word</a></li>
             </ul>
           </li>

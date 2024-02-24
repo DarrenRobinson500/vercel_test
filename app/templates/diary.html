@@ -27,7 +27,7 @@
         {% for item in objects %}
         <tr>
             <td>[{{ item.date }}] {{ item.text | safe }}</td>
-            <td><a class="btn btn-yak" href="{% url 'delete_diary' item.id %}">Delete</a></td>
+            <td><a class="btn btn-yak" href="{% url 'diary_delete' item.id %}">Delete</a></td>
         </tr>
         {% endfor %}
       </tbody>

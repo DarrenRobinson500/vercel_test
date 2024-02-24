@@ -12,9 +12,10 @@ import socket
 Event_Tuple = namedtuple('Event_Tuple', ['date', 'description'])
 Dog_Diary = namedtuple('Dog_Diary', ['date', 'bookings'])
 
+nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word"]
 
 def home(request):
-    context = {}
+    context = {"nav_bar_items": nav_bar_items}
     return render(request, "home.html", context)
 
 # -----------------------------
@@ -72,7 +73,7 @@ def downloadexcel(request):
     return response
 
 # -----------------------------
-# --------NOTES----------------
+# --------DOGS----------------
 # -----------------------------
 
 def dogs(request):
@@ -287,6 +288,146 @@ def delete_note(request, id):
         object.delete()
     if parent:
         return redirect("note", f"{parent.id}")
+    else:
+        return redirect("notes")
+
+# -----------------------------
+# --------DIARY----------------
+# -----------------------------
+
+def diary(request):
+    if not request.user.is_authenticated: return redirect("login")
+    form = None
+    if request.method == 'POST':
+        form = DiaryForm(request.POST or None)
+        if form.is_valid(): form.save()
+    form = DiaryForm()
+    objects = Diary.objects.all().order_by("-date")
+    count = len(objects)
+    context = {'objects': objects, 'title': "Diary", 'count': count, "form": form}
+    return render(request, 'diary.html', context)
+
+def diary_delete(request, id):
+    object = Diary.objects.filter(id=id).first()
+    if object: object.delete()
+    return redirect("diary")
+
+# -----------------------------
+# --------EVENTS---------------
+# -----------------------------
+def events(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST or None)
+        if form.is_valid(): form.save()
+
+    today = date.today()
+    end_date = today + timedelta(days=3)
+
+    # Routine
+    ongoing_items = Note.objects.filter(frequency__isnull=False)
+    for item in ongoing_items: item.update_date()
+
+    tide_dates = Tide_Date.objects.filter(date__lte=end_date).filter(date__gte=today).order_by('date')
+    context = {'tide_dates': tide_dates, 'title': "Events"}
+    return render(request, 'events.html', context)
+
+# -----------------------------
+# --------QUOTES---------------
+# -----------------------------
+
+def quotes(request):
+    if not request.user.is_authenticated: return redirect("login")
+    if request.method == 'POST':
+        form = QuoteForm(request.POST or None)
+        if form.is_valid(): form.save()
+    objects = Quote.objects.all().order_by('-date')
+    context = {'quotes': objects}
+    return render(request, 'quotes.html', context)
+
+# -----------------------------
+# --------BIRTHDAYS-------------
+# -----------------------------
+
+def birthdays(request):
+    if request.method == 'POST':
+        form = BirthdayForm(request.POST or None)
+        if form.is_valid(): form.save()
+    objects = Birthday.objects.all().order_by(ExtractMonth('date'), ExtractDay('date'))
+    count = len(objects)
+
+    context = {'objects': objects, "count": count, "min_days": min_days_to_birthday(), 'title': "Birthdays"}
+    return render(request, 'birthdays.html', context)
+
+# -----------------------------
+# --------SHOPPING-------------
+# -----------------------------
+
+def shopping(request):
+    if not request.user.is_authenticated: return redirect("login")
+    if request.method == 'POST':
+        form = ShoppingForm(request.POST)
+        if form.is_valid(): form.save()
+    shops = Shop.objects.order_by('order')
+
+    form = ShoppingForm()
+    context = {'form': form, 'shops': shops}
+    return render(request, 'shopping.html', context)
+
+def shopping_save(request):
+    if not request.user.is_authenticated: return redirect("login")
+    objects = Shopping.objects.all()
+    if request.method == 'POST':
+        for object in objects:
+            if f"checkbox{object.id}" in request.POST.keys():
+                object.buy = True
+            else:
+                object.buy = False
+            object.save()
+    return redirect('shopping')
+
+def shopping_clear(request):
+    if not request.user.is_authenticated: return redirect("login")
+    objects = Shopping.objects.all()
+    for object in objects:
+        object.buy = False
+        object.save()
+
+    return redirect('shopping')
+def shopping_delete(request, id):
+    object = Note.objects.filter(id=id).first()
+    if object and object.shop: parent = object.shop
+    if object: object.delete()
+    if parent: return redirect("shopping_edit", f"{parent.id}")
+    else: return redirect("shopping")
+
+def shopping_edit(request, id):
+    shop = Shop.objects.get(id=id)
+    shop.order_children()
+    context = {'shop': shop}
+    return render(request, "shopping_edit.html", context)
+
+def shopping_up(request, id): return shopping_reorder(request, -1, id)
+
+def shopping_down(request, id): return shopping_reorder(request, 1, id)
+
+def shopping_reorder(request, dir, id):
+    object = Shopping.objects.filter(id=id).first()
+    if object is None:                                                  pass
+    elif dir == 1 and object.order == object.shop.max_child_number():   pass
+    elif dir == -1 and object.order == 1:                               pass
+    else:
+        if object.order:
+            other_object = Shopping.objects.filter(shop=object.shop, order=object.order + dir).first()
+            if other_object:
+                other_object.order = object.order
+                other_object.save()
+            object.order = object.order + dir
+        else:
+            object.order = object.shop.next_child_number()
+        object.save()
+
+    if object and object.shop:
+        return redirect("shopping_edit", str(object.shop.id))
     else:
         return redirect("notes")
 
