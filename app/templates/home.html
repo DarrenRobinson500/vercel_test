@@ -3,7 +3,7 @@
 <h1>Home</h1>
 
 {% for item in nav_bar_items %}
-    <a class="btn btn-yak btn-sm" href="{% url item %}">{{ item | capfirst }}</a>
+    <a class="btn btn-yak btn-sm" href="{% url item %}" style="margin-top: 10px">{{ item | capfirst }}</a>
 {% endfor %}
 
 {% endblock %}
