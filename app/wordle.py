@@ -244,7 +244,7 @@ def wordle_remaining(request, id=None):
             no += category['count'] * category['attempts']
             total += category['count']
     attempts_range = sorted(attempts_range, key=lambda x: x[0])
-    score = round(no/total, 3)
+    score = round(no/total, 2)
 
     # Categorisation of second word
     categories_second_word = Wordle.objects.values('guess_2').annotate(count=Count('guess_2'))
@@ -259,7 +259,7 @@ def wordle_remaining(request, id=None):
     remaining_words_not_tested = remaining_words.filter(last_reviewed__isnull=True)
     message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(remaining_words))*100)}% ({len(remaining_words) - len(remaining_words_not_tested)} of {len(remaining_words)})"
     hard_words = attempts_range[4][1] + attempts_range[5][1] + attempts_range[6][1]
-    message_2 = f"Hard words: {hard_words} ({int(hard_words/len(remaining_words)*100)}%)"
+    message_2 = f"Hard words: {hard_words} ({int(hard_words/len(remaining_words)*1000)/10}%)"
 
     todays_word = Wordle.objects.filter(date__isnull=False).order_by('-date')
 

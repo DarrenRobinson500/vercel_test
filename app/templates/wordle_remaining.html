@@ -22,7 +22,7 @@
         Future Average Score: <b>{{ score }}</b> (originally 3.47)<br>
         {{ message }}<br>
         {{ message_2 }}<br><br>
-        <a href="{% url 'wordle_test' %}" class='btn btn-yak'>Redo</a><br>
+        <a href="{% url 'wordle_remaining' %}" class='btn btn-yak'>Redo</a><br>
     </div>
     <div class="col-sm-5">
         <h2>Second Word</h2>
@@ -52,7 +52,7 @@
             <b>{{ x }} att<br>({{ number }})</b><br>
             {% for word in words %}
                 {% if word.attempts == x %}
-                    <a href="{% url 'wordle_test' word.id %}"
+                    <a href="{% url 'wordle_remaining' word.id %}"
                     {% if todays == word.guess_2 or todays == word.guess_3 or todays == word.guess_4 or todays == word.guess_5 or todays == word.guess_6 %}
                         style="color: red;"
                     {% endif %}
