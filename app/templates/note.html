@@ -9,9 +9,6 @@
             <a href="{% url 'note' parent.id %}">{{ parent.heading }}</a> >
         {% endfor %}<br>
     {% endif %}
-    {% if home_pc %}
-        <a href="{% url 'downloadpage' %}" class="btn btn-yak">Download All</a>
-    {% endif %}
     <h3>Edit Note</h3>
      <form action="{% url 'edit_note' object.id %}" class="form-inline my-2 my-lg-0" method="POST">
         {% csrf_token %}
@@ -54,7 +51,7 @@
     </table>
 
 
-    <h3>Create Note - Child of {{ object }}</h3>
+    <h3>Create Child of <span style="color:blue">'{{ object.heading }}'</span></h3>
      <form action="{% url 'note' object.id %}" class="form-inline my-2 my-lg-0" method="POST">
         {% csrf_token %}
         {{ form_empty.media }}

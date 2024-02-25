@@ -16,7 +16,10 @@ nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", 
 
 def home(request):
     home_pc = socket.gethostname() == "Mum_and_Dads"
-    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc}
+    parent_note = Note.objects.exclude(parent__isnull=False).first()
+    children_notes = Note.objects.filter(parent=parent_note).order_by("order")
+
+    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "children_notes": children_notes}
     return render(request, "home.html", context)
 
 # -----------------------------

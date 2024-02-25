@@ -97,7 +97,7 @@ class Diary(Model):
     def __str__(self): return "[" + str(self.entry_date) + "] " + self.text[0:50]
 
 class Note(Model):
-    choices = [("Weekly", "Weekly"), ("Fortnightly", "Fortnightly"), ("Monthly", "Monthly"), ]
+    choices = [("Weekly", "Weekly"), ("Fortnightly", "Fortnightly"), ("Monthly", "Monthly"), ("Annually", "Annually"), ]
     string_name = "Note"
     heading = TextField(null=True, blank=True)
     # text = RichTextField(null=True, blank=True)
@@ -107,7 +107,7 @@ class Note(Model):
     parent = ForeignKey('self', null=True, blank=True, on_delete=CASCADE)
     create_date = DateField(auto_now_add=True, null=True, blank=True)
     frequency = CharField(null=True, blank=True, choices=choices)
-    note_date = DateField(null=True, blank=False)
+    note_date = DateField(null=True, blank=True)
     order = IntegerField(null=True, blank=True)
     def __str__(self):
         if self.parent:
@@ -128,6 +128,7 @@ class Note(Model):
         if self.frequency == "Weekly": freq = timedelta(days=7)
         if self.frequency == "Fortnightly": freq = timedelta(days=14)
         if self.frequency == "Monthly": freq = timedelta(months=1)
+        if self.frequency == "Annually": freq = timedelta(months=12)
         print("Update_date", self, freq, self.note_date, today, self.note_date < today)
         while self.note_date < today:
             self.note_date += freq

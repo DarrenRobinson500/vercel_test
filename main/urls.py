@@ -31,11 +31,11 @@ urlpatterns = [
 
     # Notes
     path("notes", notes, name="notes"),
-    path("note<id>", note, name="note"),
-    path("edit_note<id>", edit_note, name="edit_note"),
-    path("up<id>", up, name="up"),
-    path("down<id>", down, name="down"),
-    path("delete_note<id>", delete_note, name="delete_note"),
+    path("note/<id>", note, name="note"),
+    path("edit_note/<id>", edit_note, name="edit_note"),
+    path("up/<id>", up, name="up"),
+    path("down/<id>", down, name="down"),
+    path("delete_note/<id>", delete_note, name="delete_note"),
     # path("new_category", new_category, name="new_category"),
 
     # Misc
