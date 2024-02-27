@@ -22,6 +22,7 @@ class General(Model):
     string_name = "General"
     name = CharField(max_length=30, default="main")
     dog_diary_days = IntegerField(default=200)
+    event_days = IntegerField(default=10)
     wordles_to_do = IntegerField(default=3)
     def __str__(self): return self.name
 
@@ -292,7 +293,6 @@ class Birthday(Model):
         # next_age_string = "XX"
 
         return next_age_string
-
 
     def next_age_days(self):
         today = datetime.today()

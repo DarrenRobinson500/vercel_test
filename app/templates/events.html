@@ -1,7 +1,17 @@
 {% extends 'base.html'%}
 {% block content %}
 
+
+
     <h1>{{ title }}</h1>
+
+    {% for duration in durations %}
+        <a class="btn btn-yak btn-sm" href="{% url 'event_duration' duration %}" style="margin-top: 10px"
+           {% if general.dog_diary_days == duration %}style="border: 2px solid black"{% endif %}
+        >{{ duration }} days</a>
+    {% endfor %} <br><br>
+
+
     <form action="{% url 'events' %}" class="form-inline my-2 my-lg-0" method="POST">
         {% csrf_token %}
         <table class="table-primary">
@@ -19,8 +29,6 @@
                     <button type="submit" class="btn btn-yak">Add event</button>
                 </td>
             </tbody>
-
-
         </table>
     </form>
     <hr>
@@ -29,34 +37,22 @@
         <thead class="table-light">
             <th>Day</th>
             <th>Events</th>
+            <th>Notes</th>
             <th>Dogs</th>
-            <th>Weather</th>
-            <th>Tides (Lows)</th>
-            <th></th>
+            <th>Birthdays</th>
         </thead>
 
-        {% for date in tide_dates %}
+        {% for event_day, events, notes, birthdays, dog_bookings in event_list %}
         <tr>
-            <td>{{ date.date | date:"j M - D" }}</td>
+            <td>{{ event_day | date:"j M - D" }}</td>
+            <td>{% for event in events %} {{ event }}<br>{% endfor %}</td>
+            <td>{% for note in notes %} <a href="{% url 'note' note.id %}">{{ note.heading }}</a><br>{% endfor %}</td>
+            <td>{% for dog in dog_bookings %} {{ dog }}<br>{% endfor %}</td>
+            <td>{% for item in birthdays %} {{ item }}<br>{% endfor %}</td>
             <td>
-                {% for birthday in date.birthdays %}<b>{{ birthday.tag }}: {{ birthday }}</b><br>{% endfor %}
-                {% for event in date.events %}{{ event.description }}<br>{% endfor %}
-                {% for note in date.notes %}<a href="{% url 'note' note.id %}">{{ note.heading }}</a><br>{% endfor %}
-            </td>
-            <td>
-                {% for booking in date.bookings %} {{ booking.dog }}<br>{% endfor %}
-            </td>
-            <td>
-                {% if date.max_temp %} <b>Max: {{ date.max_temp.max }}&deg;</b><br>{% endif %}
-                {% for weather in date.weather %}
-                    {{ weather.time }}: {{ weather.precis }}<br>
-                {% endfor %}
             </td>
 
             <td>
-            {% for tide in date.tides %}
-                {{ tide.time }}<br>
-            {% endfor %}
             </td>
         </tr>
         {% endfor %}

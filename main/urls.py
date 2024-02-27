@@ -42,6 +42,7 @@ urlpatterns = [
     path("diary", diary, name="diary"),
     path("diary_delete<id>", diary_delete, name="diary_delete"),
     path("events", events, name="events"),
+    path("event_duration/<dur>", event_duration, name="event_duration"),
     path("quotes", quotes, name="quotes"),
     path("birthdays", birthdays, name="birthdays"),
 

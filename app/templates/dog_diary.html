@@ -2,13 +2,11 @@
 {% block content %}
 <h1>Dog Diary</h1>
 
-{% for duration in durations %}
-    <a class="btn btn-yak btn-sm" href="{% url 'dog_duration' duration %}" style="margin-top: 10px"
-       {% if general.dog_diary_days == duration %}style="border: 2px solid black"{% endif %}
-    >{{ duration }} days</a>
-
-
-{% endfor %} <br><br>
+    {% for duration in durations %}
+        <a class="btn btn-yak btn-sm" href="{% url 'dog_duration' duration %}" style="margin-top: 10px"
+           {% if general.dog_diary_days == duration %}style="border: 2px solid black"{% endif %}
+        >{{ duration }} days</a>
+    {% endfor %} <br><br>
 
     <table class="table">
         <thead class="table-light">

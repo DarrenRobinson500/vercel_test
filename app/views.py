@@ -203,8 +203,6 @@ def dogs(request):
     context = {'table_info': table_info, 'title': "Dogs", "form": form, "edit_mode": False, 'people': people()}
     return render(request, 'dog_simple.html', context)
 
-
-
 def dog_edit(request, id):
     print("A")
     if not request.user.is_authenticated: return redirect("login")
@@ -256,7 +254,6 @@ def dog_diary(request):
     for x in range(general.dog_diary_days):
         day = today + timedelta(days=x)
         dog_diary.append([day, []])
-
 
     bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
 
@@ -426,20 +423,63 @@ def diary_delete(request, id):
 # --------EVENTS---------------
 # -----------------------------
 def events(request):
+    general = General.objects.get(name="main")
+    today = date.today()
+
     if request.method == 'POST':
         form = EventForm(request.POST or None)
         if form.is_valid(): form.save()
 
-    today = date.today()
-    end_date = today + timedelta(days=3)
+    event_list = []
+    for x in range(general.event_days):
+        day = today + timedelta(days=x)
+        event_list.append([day, [], [], [], []])
 
-    # Routine
-    ongoing_items = Note.objects.filter(frequency__isnull=False)
-    for item in ongoing_items: item.update_date()
+    # Events
+    events = Event.objects.filter(date__gte=today).order_by('date')
+    for event in events:
+        for event_day in event_list:
+            if event.date == event_day[0]:
+                event_day[1].append(event.description)
 
-    tide_dates = Tide_Date.objects.filter(date__lte=end_date).filter(date__gte=today).order_by('date')
-    context = {'tide_dates': tide_dates, 'title': "Events"}
+    # Notes
+    notes = Note.objects.filter(note_date__gte=today).order_by('note_date')
+    for item in notes:
+        for event_day in event_list:
+            if item.note_date == event_day[0]:
+                event_day[2].append(item)
+
+    # Birthdays
+    birthdays = Birthday.objects.all()
+    print("Birthdays")
+    for item in birthdays:
+        print(item, item.date)
+        for event_day in event_list:
+            if item.date.month == event_day[0].month and item.date.day == event_day[0].day:
+                event_day[3].append(item.next_age())
+
+    # Dog Bookings
+    bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
+    for booking in bookings:
+        for event_day in event_list:
+            if booking.start_date <= event_day[0] <= booking.end_date:
+                event_day[4].append(booking.dog.name)
+
+    durations = [7, 30, 60, 90, 120, 150, 180, 360]
+    print("\nEvent List")
+    print(event_list)
+
+    context = {'event_list': event_list, 'durations': durations, 'general': general, 'title': "Events"}
+
     return render(request, 'events.html', context)
+
+def event_duration(request, dur):
+    general = General.objects.get(name="main")
+    general.event_days = dur
+    general.save()
+    return redirect('events')
+
+
 
 # -----------------------------
 # --------QUOTES---------------
