@@ -3,6 +3,7 @@
 
 
     <h1>{{ title }}</h1><br>
+
      <table class="table">
       <thead>
         <tr>
@@ -28,8 +29,11 @@
 
             </td>
             <td>
-                {{ booking | safe }}
-                <a class="btn btn-yak btn-sm" href="{% url 'booking' id %}">Add booking</a>
+                {% for booking in dog.bookings %}
+                    {% if booking.in_future %}
+                        {{ booking.short_name }}<br>
+                    {% endif %}
+                {% endfor %}
             </td>
         </tr>
         {% endfor %}

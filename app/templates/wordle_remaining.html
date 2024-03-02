@@ -34,21 +34,21 @@
             <div class="col-sm-4">
                 {% for word, count, hard_words in second_word_array_1 %}
                     <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
                 <br>
                 {% endfor %}<br>
             </div>
             <div class="col-sm-4">
                 {% for word, count, hard_words in second_word_array_2 %}
                     <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
                 <br>
                 {% endfor %}<br>
             </div>
             <div class="col-sm-4">
                 {% for word, count, hard_words in second_word_array_3 %}
                     <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
                 <br>
                 {% endfor %}<br>
             </div>

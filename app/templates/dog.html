@@ -2,62 +2,49 @@
 {% block content %}
 
 
-    <h1>{{ title }}</h1><br>
-    {% if edit_mode %}
-        <h1>Edit Mode</h1><br>
-        <form action="{% url 'dog_edit' dog.id %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
-         </form>
-    {% endif %}
+    <h1>{{ dog.name }}</h1>
 
      <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Dogs</th>
-          <th scope="col">Owners</th>
-          <th scope="col">Notes</th>
-          <th style="min-width: 250px;">Bookings</th>
-        </tr>
-      </thead>
-     <tbody>
-        {% for name, id, owners, owners_number, notes, approved, bookings in table_info %}
-        <tr>
-            <td><a href="{% url 'dog_edit' id %}">{{ name }} ({{ id }})</a></td>
+         <tr>
+           <th scope="col">Photo</th>
+           <th scope="col">Owners</th>
+           <th scope="col">Notes</th>
+           <th style="min-width: 250px;">Bookings</th>
+         </tr>
+         <tr>
             <td>
-                {{ owners }}
-                {% if owners_number %}
-                    <br><a href="tel:+{{ item.mobile }}">{{ owners_number }}</a>
+                {% if dog.image %}
+                <img src="{{ dog.image.url }}" height="120"/>
                 {% endif %}
             </td>
-            <td>
-                {% if notes %} {{ notes | safe}}<br> {% endif %}
-                {% if approved != "Yes" %}Approved: {{ approved }}{% endif %}
-
+             <td>
+                {{ dog.owners }}
+                {% if dog.owners_number %}
+                    <br><a href="tel:+{{ item.mobile }}">{{ dog.owners_number }}</a>
+                {% endif %}
             </td>
-            <td>
-                {{ booking | safe }}
-                <a class="btn btn-yak btn-sm" href="{% url 'booking' id %}">Add booking</a>
-            </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+             <td>
+                {% if dog.notes %} {{ dog.notes | safe}}<br> {% endif %}
+                {% if dog.approved != "Yes" %}Approved: {{ dog.approved }}{% endif %}
+             </td>
+             <td>
+                {% for booking in dog.bookings %}
+                    {% if booking.in_future %}
+                        {{ booking.short_name }}<br>
+                    {% endif %}
+                {% endfor %}
+                <a class="btn btn-yak btn-sm" href="{% url 'booking' dog.id %}">Add booking</a>
+             </td>
+     </table>
 
-    {% if not edit_mode %}
-        <h1>Add a Dog</h1><br>
-        <form action="{% url 'dogs' %}" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
+{% if edit_mode %}
+        <h1>Edit</h1><br>
+        <form class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.media }}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-yak">{% if edit_mode %} Update Details {% else %} Add dog {% endif %}</button>
+            <button type="submit" class="btn btn-yak">Update Details</button>
          </form>
-     {% endif %}
-
-
-            <br><br>
-            <br><br>
+{% endif %}
 
 {% endblock %}

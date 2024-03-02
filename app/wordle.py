@@ -285,7 +285,10 @@ def wordle_remaining(request, id=None, second_word=None):
     for category in categories_second_word:
         hard_words_2 = 0
         if category['count'] > 10 and second_word:
-            hard_words_2 = second_words.filter(word=category['guess_2']).first().hard_words
+            try:
+                hard_words_2 = second_words.filter(word=category['guess_2']).first().hard_words
+            except:
+                pass
             # for wordle_2 in second_words:
             #     if category['guess_2'] == wordle_2.word: hard_words_2 = wordle_2.hard_words
             # wordle_second_guess = Wordle.objects.get(word=category['guess_2'])

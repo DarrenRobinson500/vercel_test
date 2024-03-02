@@ -24,10 +24,11 @@ urlpatterns = [
 
     # Dogs
     path("dogs", dogs, name="dogs"),
+    path("dog/<id>", dog, name="dog"),
     path("dog_edit/<id>", dog_edit, name="dog_edit"),
     path("dog_diary", dog_diary, name="dog_diary"),
     path("dog_duration/<dur>", dog_duration, name="dog_duration"),
-    path("booking<id>", booking, name="booking"),
+    path("booking/<id>", booking, name="booking"),
 
     # Notes
     path("notes", notes, name="notes"),

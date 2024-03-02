@@ -15,6 +15,7 @@ Dog_Diary = namedtuple('Dog_Diary', ['date', 'bookings'])
 nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "dogs", "dog_diary"]
 
 def home(request):
+    if not request.user.is_authenticated: return redirect("login")
     home_pc = socket.gethostname() == "Mum_and_Dads"
     parent_note = Note.objects.exclude(parent__isnull=False).first()
     children_notes = Note.objects.filter(parent=parent_note).order_by("order")
@@ -158,24 +159,28 @@ def create_link(own_model, link_model, field, own_id, link_id, ):
 # --------DOGS----------------
 # -----------------------------
 
-def dogs_old(request):
+def dogs(request):
     if not request.user.is_authenticated: return redirect("login")
-    form = DogForm()
+    dogs = Dog.objects.all()
+    dogs = sorted(dogs, key=lambda d: d.next_booking())
+    context = {"dogs": dogs}
+    return render(request, 'dogs.html', context)
 
+def dog(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    dog = Dog.objects.get(id=id)
     if request.method == 'POST':
-        form = DogForm(request.POST, request.FILES)
+        form = DogForm(request.POST, request.FILES, instance=dog)
         if form.is_valid(): form.save()
-    objects = Dog.objects.all()
-    objects = sorted(objects, key=lambda d: d.next_booking())
-    print("Dogs", objects)
-    show_images = False
 
-    count = len(objects)
-    context = {'objects': objects, 'title': "Dogs", 'count': count, "form": form, "edit_mode": False, 'people': people(),
-               'show_images': show_images}
+    form = DogForm(instance=dog)
+
+    edit_mode = True
+    context = {"dog": dog, "form": form, 'edit_mode': edit_mode}
+    print("Rendering HTML")
     return render(request, 'dog.html', context)
 
-def dogs(request):
+def dogs_old(request):
     if not request.user.is_authenticated: return redirect("login")
     form = DogForm()
     if request.method == 'POST':
@@ -195,10 +200,6 @@ def dogs(request):
             print(dog_info[1], booking.dog.id)
             if dog_info[1] == booking.dog.id:
                 dog_info[6].append(booking.short_name() + "\n")
-
-    print("Dogs Info")
-    for dog_info in table_info:
-        print(dog_info)
 
     context = {'table_info': table_info, 'title': "Dogs", "form": form, "edit_mode": False, 'people': people()}
     return render(request, 'dog_simple.html', context)
