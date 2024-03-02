@@ -32,21 +32,33 @@
         <h2>Second Words</h2>
         <div class="row">
             <div class="col-sm-4">
-                {% for word, count in second_word_array_1 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% for word, count, hard_words in second_word_array_1 %}
+                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
+                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                <br>
                 {% endfor %}<br>
             </div>
             <div class="col-sm-4">
-                {% for word, count in second_word_array_2 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% for word, count, hard_words in second_word_array_2 %}
+                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
+                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                <br>
                 {% endfor %}<br>
             </div>
             <div class="col-sm-4">
-                {% for word, count in second_word_array_3 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}<br>
+                {% for word, count, hard_words in second_word_array_3 %}
+                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
+                    {% if hard_words > 0 %} ({{ hard_words }}){% endif %}
+                <br>
                 {% endfor %}<br>
             </div>
         </div>
+    </div>
+    <div class="col-sm-2">
+        <h2>Date Solved</h2>
+        {% for date_solved, count in date_solved_array %}
+            {{ date_solved | date:"j M" }}: {{ count }}<br>
+        {% endfor %}
     </div>
 </div>
 <div class="row">
@@ -56,7 +68,9 @@
             <b>{{ x }} att<br>({{ number }})</b><br>
             {% for word in words %}
                 {% if word.attempts == x %}
-                    <a href="{% url 'wordle_remaining' word.id %}">{{ word.upper }}</a>{% if word.last_reviewed %} {{ word.last_reviewed }}{% endif %}<br>
+                    <a href="{% url 'wordle_remaining' word.id %}">{{ word.upper }}</a>
+                    {% if word.last_reviewed %} {{ word.last_reviewed }}{% endif %}
+                    <br>
                     {% if x == 7 %}
                         {{ word.guess_2 }}, {{ word.guess_3 }}, {{ word.guess_4 }}, {{ word.guess_5 }}, {{ word.guess_6 }}<br>
                     {% endif %}

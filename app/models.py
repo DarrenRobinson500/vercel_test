@@ -422,6 +422,7 @@ class Wordle(Model):
     date = DateField(null=True, blank=False)
     last_reviewed = DateField(null=True, blank=False, default=None)
     score = IntegerField(null=True, blank=True)
+    hard_words = IntegerField(null=True, blank=True)
     attempts = IntegerField(null=True, blank=True)
     def __str__(self):
         if not self.word: return "No word"

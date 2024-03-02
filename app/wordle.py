@@ -214,11 +214,13 @@ def get_max_attempts():
     return max_attempts
 
 def wordle_remaining(request, id=None, second_word=None):
+    # print("Wordle remaining - start")
     if not request.user.is_authenticated: return redirect("login")
     if second_word:
         second_wordle = Wordle.objects.get(word=second_word)
     else:
         second_wordle = None
+    # print("Second wordle:", second_wordle)
 
     wordle = None
 
@@ -241,22 +243,20 @@ def wordle_remaining(request, id=None, second_word=None):
         categories = Wordle.objects.filter(date__isnull=True, guess_2=second_word).values('attempts').annotate(count=Count('attempts'))
         remaining_words = Wordle.objects.filter(date__isnull=True, guess_2=second_word)
         remaining_words_not_tested = remaining_words.filter(last_reviewed__isnull=True, guess_2=second_word)
-        print(f"Remaining words ({second_word}):")
-        for remaining_word in remaining_words:
-            print(remaining_word)
-        print(f"Categories ({second_word}):")
-        for category in categories:
-            print(category)
+        # print(f"Remaining words ({second_word}):")
+        # for remaining_word in remaining_words:
+            # print(remaining_word)
+        # print(f"Categories ({second_word}):")
+        # for category in categories:
+        #     print(category)
     else:
         wordles = Wordle.objects.filter(date__isnull=True).order_by('word')
         categories = Wordle.objects.filter(date__isnull=True).values('attempts').annotate(count=Count('attempts'))
         remaining_words = Wordle.objects.filter(date__isnull=True)
         remaining_words_not_tested = remaining_words.filter(last_reviewed__isnull=True)
 
-
     # Categorisation of attempts
     attempts_range = []
-
     no, total = 0, 0
     for category in categories:
         if category['attempts']:
@@ -266,19 +266,45 @@ def wordle_remaining(request, id=None, second_word=None):
     attempts_range = sorted(attempts_range, key=lambda x: x[0])
     score = round(no/total, 2)
 
+    # Hard words
+    hard_words = 0
+    for attempts, count in attempts_range:
+        if attempts >= 5: hard_words += count
+    if second_wordle:
+        second_wordle.hard_words = hard_words
+        second_wordle.save()
+        # print("Second word - hard words:", second_wordle, second_wordle.hard_words)
+
     # Categorisation of second word
-    categories_second_word = Wordle.objects.values('guess_2').annotate(count=Count('guess_2'))
+    categories_second_word = Wordle.objects.filter(date__isnull=True).values('guess_2').annotate(count=Count('guess_2'))
+    second_words = Wordle.objects.filter(attempts=2)
+    # print(second_words)
     second_word_array = []
+    # print("categories_second_word")
+    # print(categories_second_word)
     for category in categories_second_word:
-        second_word_array.append((category['guess_2'], category['count']))
+        hard_words_2 = 0
+        if category['count'] > 10 and second_word:
+            hard_words_2 = second_words.filter(word=category['guess_2']).first().hard_words
+            # for wordle_2 in second_words:
+            #     if category['guess_2'] == wordle_2.word: hard_words_2 = wordle_2.hard_words
+            # wordle_second_guess = Wordle.objects.get(word=category['guess_2'])
+            # print("Wordle second guess", wordle_second_guess, wordle_second_guess.hard_words)
+            # hard_words_2 = wordle_second_guess.hard_words
+        # print(category['guess_2'], category['count'], hard_words_2)
+        second_word_array.append((category['guess_2'], category['count'], hard_words_2))
     second_word_array_1 = sorted(second_word_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0: 10]
     second_word_array_2 = sorted(second_word_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[10: 20]
     second_word_array_3 = sorted(second_word_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[20: 30]
 
+    # Categorisation of date solved
+    categories_dates = Wordle.objects.filter(date__isnull=True).values('last_reviewed').annotate(count=Count('last_reviewed'))
+    date_solved_array = []
+    for category in categories_dates:
+        date_solved_array.append((category['last_reviewed'], category['count']))
+    date_solved_array = sorted(date_solved_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0:10]
+    date_solved_array = sorted(date_solved_array, key=lambda x: (x[0] is None, x[0]))
 
-    hard_words = 0
-    for attempts, count in attempts_range:
-        if attempts >= 5: hard_words += count
 
     message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(remaining_words))*100)}% ({len(remaining_words) - len(remaining_words_not_tested)} of {len(remaining_words)})"
     message_2 = f"Hard words: {hard_words} ({int(hard_words/len(remaining_words)*1000)/10}%)"
@@ -289,7 +315,7 @@ def wordle_remaining(request, id=None, second_word=None):
         word = None
 
     context = {'word': word, 'second_word': second_word, 'input_array': input_array, 'words': wordles, 'attempts_range': attempts_range,
-               'remaining_words': remaining_words, 'score': score,
+               'remaining_words': remaining_words, 'score': score, 'date_solved_array': date_solved_array,
                'second_word_array_1': second_word_array_1, 'second_word_array_2': second_word_array_2, 'second_word_array_3': second_word_array_3,
                "message": message, "message_2": message_2}
     return render(request, "wordle_remaining.html", context)
