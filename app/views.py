@@ -168,6 +168,8 @@ def dogs(request):
 
 def dog(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    dogs = Dog.objects.all()
+    dogs = sorted(dogs, key=lambda d: d.next_booking())
     dog = Dog.objects.get(id=id)
     if request.method == 'POST':
         form = DogForm(request.POST, request.FILES, instance=dog)
@@ -176,7 +178,7 @@ def dog(request, id):
     form = DogForm(instance=dog)
 
     edit_mode = True
-    context = {"dog": dog, "form": form, 'edit_mode': edit_mode}
+    context = {"dog": dog, "dogs": dogs, "form": form, 'edit_mode': edit_mode}
     print("Rendering HTML")
     return render(request, 'dog.html', context)
 

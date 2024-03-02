@@ -1,6 +1,9 @@
 {% extends 'base.html'%}
 {% block content %}
 
+    {% for dog in dogs %}
+        <a class="btn btn-yak" href="{% url 'dog' dog.id %}" style="margin-top: 10px">{{ dog.name }}</a>
+    {% endfor %}
 
     <h1>{{ dog.name }}</h1>
 
