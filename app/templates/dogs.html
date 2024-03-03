@@ -5,7 +5,10 @@
     <h1>Dogs</h1>
 
     {% for dog in dogs %}
-        <a class="btn btn-yak" href="{% url 'dog' dog.id %}" style="margin-top: 10px">{{ dog.name }}</a>
+        <a class="btn btn-yak" href="{% url 'dog' dog.id %}" style="margin-top: 10px">{{ dog.name }}<br>
+            {% if dog.image %}
+                <img src="{{ dog.image.url }}" height="120"/>
+            {% endif %}</a>
     {% endfor %}
 
 {% endblock %}
