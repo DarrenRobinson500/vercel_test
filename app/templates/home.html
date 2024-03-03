@@ -7,12 +7,17 @@
     <a class="btn btn-yak btn-sm" href="{% url item %}" style="margin-top: 10px">{{ item | capfirst }}</a>
 {% endfor %}<br><br>
 
-{% for child in children_notes %}
-    <a class="btn btn-yak btn-sm" href="{% url 'note' child.id %}" style="margin-top: 10px">{{ child | capfirst }}</a>
-{% endfor %}<br><br>
+{% for name, buttons in button_sets %}
+    <h3>{{ name | capfirst }}s</h3>
+    {% for button in buttons %}
+        <a class="btn btn-yak btn-sm" href="{% url name button.id %}" style="margin-top: 10px">{{ button | capfirst }}</a>
+    {% endfor %}<br>
+{% endfor %}
+
 
 {% if home_pc %}
 <hr>
+    <h3>Home Utilities</h3>
     <a class="btn btn-yak btn-sm" href="{% url 'load_data' %}">Load Data from Excel</a>
     <a class="btn btn-yak btn-sm" href="{% url 'downloadpage' %}">Download All</a><br><br>
 {% endif %}

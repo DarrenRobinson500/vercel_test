@@ -19,8 +19,13 @@ def home(request):
     home_pc = socket.gethostname() == "Mum_and_Dads"
     parent_note = Note.objects.exclude(parent__isnull=False).first()
     children_notes = Note.objects.filter(parent=parent_note).order_by("order")
+    dogs = Dog.objects.all()
+    dogs = sorted(dogs, key=lambda d: d.next_booking())
 
-    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "children_notes": children_notes}
+    button_sets = [("note", children_notes), ("dog", dogs)]
+    print(button_sets)
+
+    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "button_sets": button_sets}
     return render(request, "home.html", context)
 
 # -----------------------------
