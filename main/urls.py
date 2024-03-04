@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from app.views import *
+from app.sudoku import *
 from app.wordle import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -56,6 +57,7 @@ urlpatterns = [
     path("shopping_down/<id>", shopping_down, name="shopping_down"),
     path("shopping_clear", shopping_clear, name="shopping_clear"),
 
+    # Games
     # path("clash", clash, name="clash"),
     # path("hero_inc/<id>/<hero>", hero_inc, name="hero_inc"),
     path('wordle', wordle, name='wordle'),
@@ -70,6 +72,8 @@ urlpatterns = [
     path('past_words', past_words, name='past_words'),
     path('word', word, name='word'),
     path('clear', clear, name='clear'),
+
+    path('sudoku', sudoku, name='sudoku'),
     # path('timers', timers, name='timers'),
     # path('timer/<id>', timer, name='timer'),
     # path('tides', tides, name='tides'),

@@ -1,0 +1,31 @@
+{% extends 'base.html'%}
+{% block content %}
+
+
+     <form method="POST">
+        {% csrf_token %}
+
+
+         <div class="row">
+            <div class="col-sm-3">
+            <h1>Sudoku</h1>
+            </div>
+            <div class="col-sm-6">
+                <table class="table">
+                    <tbody>
+                        {% for row in puzzle %}
+                        <tr>
+                            {% for number, colour in row %}
+                            <td {% if colour == 1 %} style="background-color: #f2f2f2;" {% endif %}>
+                                <input type="text" class="form-control text-center" id="cell{{ row }}{{ col }}" name="cell{{ row }}{{ col }}" maxlength="1" value={{ number }}>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            <button type="submit" class="btn btn-yak">Solve</button>
+            </div>
+         </div>
+     </form>
+{% endblock %}

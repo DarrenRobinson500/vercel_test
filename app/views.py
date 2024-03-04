@@ -12,10 +12,11 @@ import socket
 Event_Tuple = namedtuple('Event_Tuple', ['date', 'description'])
 Dog_Diary = namedtuple('Dog_Diary', ['date', 'bookings'])
 
-nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "dogs", "dog_diary"]
+nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "sudoku", "dogs", "dog_diary"]
 
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
+    if request.user.first_name == "Amanda": return redirect("dog_diary")
     home_pc = socket.gethostname() == "Mum_and_Dads"
     parent_note = Note.objects.exclude(parent__isnull=False).first()
     children_notes = Note.objects.filter(parent=parent_note).order_by("order")
@@ -257,6 +258,8 @@ def dog_diary(request):
     if not request.user.is_authenticated: return redirect("login")
     general = General.objects.get(name="main")
     today = date.today()
+    dogs = Dog.objects.all()
+    dogs = sorted(dogs, key=lambda d: d.next_booking())
 
     dog_diary = []
     for x in range(general.dog_diary_days):
@@ -272,7 +275,7 @@ def dog_diary(request):
                 dog_day[1].append(booking.dog.name)
 
     durations = [30, 60, 90, 120, 150, 180, 360]
-    context = {'dog_diary': dog_diary, 'durations': durations, 'general': general}
+    context = {'dog_diary': dog_diary, 'dogs': dogs, 'durations': durations, 'general': general}
     return render(request, 'dog_diary.html', context)
 
 def dog_duration(request, dur):

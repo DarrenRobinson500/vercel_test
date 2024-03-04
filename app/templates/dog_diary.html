@@ -1,10 +1,14 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>Dog Diary</h1>
+    {% for dog in dogs %}
+        <a class="btn btn-yak btn-sm" href="{% url 'dog' dog.id %}" style="margin-top: 10px">{{ dog.name }}</a>
+    {% endfor %}
+<h1>Dog Diary: {{ general.dog_diary_days }} days</h1>
+
 
     {% for duration in durations %}
-        <a class="btn btn-yak btn-sm" href="{% url 'dog_duration' duration %}" style="margin-top: 10px"
-           {% if general.dog_diary_days == duration %}style="border: 2px solid black"{% endif %}
+        <a class="btn btn-yak btn-sm" href="{% url 'dog_duration' duration %}"
+           {% if general.dog_diary_days == duration %}style="margin-top: 10px; border: 2px solid black;"{% else %} style="margin-top: 10px" {% endif %}
         >{{ duration }} days</a>
     {% endfor %} <br><br>
 

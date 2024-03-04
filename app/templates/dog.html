@@ -1,8 +1,10 @@
 {% extends 'base.html'%}
 {% block content %}
 
-    {% for dog in dogs %}
-        <a class="btn btn-yak" href="{% url 'dog' dog.id %}" style="margin-top: 10px">{{ dog.name }}</a>
+    {% for dog_button in dogs %}
+        <a class="btn btn-yak btn-sm" href="{% url 'dog' dog_button.id %}"
+       {% if dog_button == dog %}style="margin-top: 10px; border: 2px solid black;"{% else %} style="margin-top: 10px" {% endif %}
+        >{{ dog_button.name }}</a>
     {% endfor %}
 
     <h1>{{ dog.name }}</h1>
