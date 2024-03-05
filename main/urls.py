@@ -73,7 +73,7 @@ urlpatterns = [
     path('word', word, name='word'),
     path('clear', clear, name='clear'),
 
-    path('sudoku', sudoku, name='sudoku'),
+    # path('sudoku', sudoku, name='sudoku'),
     # path('timers', timers, name='timers'),
     # path('timer/<id>', timer, name='timer'),
     # path('tides', tides, name='tides'),
