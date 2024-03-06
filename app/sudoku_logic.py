@@ -1,4 +1,6 @@
-from sudoku_puzzles import *
+from puzzles import *
+from random import randrange
+
 
 def add_colour(puzzle):
     matrix = [[None] * 9 for _ in range(9)]
@@ -11,7 +13,7 @@ def add_colour(puzzle):
     return matrix
 
 class Sudoku():
-    def __init__(self, puzzle):
+    def __init__(self, puzzle, level=1):
         self.matrix = puzzle
         self.table = [[None] * 9 for _ in range(9)]
         self.cells = []
@@ -19,6 +21,7 @@ class Sudoku():
         self.lines = [] # lines are rows and columns
         self.squares = [] # lines + squares = groups
         self.overlaps = [] # Overlaps = areas where squares and lines intersect
+        self.level = level
         number = 0
         for row_number, row in enumerate(puzzle):
             for column_number, value in enumerate(row):
@@ -30,6 +33,33 @@ class Sudoku():
             cell.like_cells = cell.get_like_cells()
         self.create_rows_cols_squares_sets()
         self.create_overlaps()
+
+    def get_matrix(self):
+        matrix = []
+        for row in self.table:
+            row_data = []
+            for cell in row:
+                row_data.append(cell.value)
+            matrix.append(row_data)
+        # print("Get matrix:")
+        # print(matrix)
+        return matrix
+
+    def add_random(self, matrix):
+        added = False
+        while not added:
+            row, col = randrange(9), randrange(9)
+            cell = self.table[row][col]
+            if not cell.value:
+                index_max = len(cell.potential_values)
+                if index_max == 2:
+                    index = randrange(index_max)
+                    value = cell.potential_values[index]
+                    matrix[row][col] = value
+                    added = True
+        added_var = (self.table[row][col], value)
+        print("Added var:", added_var[0], added_var[1])
+        return matrix, added_var
 
     def create_overlaps(self):
         for square in self.squares:
@@ -134,6 +164,25 @@ class Sudoku():
         for overlap in self.overlaps:
             overlap.forced_locations()
 
+    def guess(self):
+        count, solved = 1, False
+        while count <= 10 and not solved:
+            print("Guess:", count)
+            new_matrix = self.get_matrix()
+            new_matrix, added_value = self.add_random(new_matrix)
+            new = Sudoku(new_matrix, self.level + 1)
+            solved = new.solve()
+            print("Result:", new.count())
+            count += 1
+        if solved:
+            cell, value = added_value
+            cell.value = value
+            print("Solved:", cell, value)
+        else:
+            solved_count, potential_count = new.count()
+            print("Not solved:", solved_count)
+        return solved
+
     def solve(self):
         improving = True
         done = False
@@ -147,10 +196,16 @@ class Sudoku():
             self.doubles()
             self.triples()
             self.forced_locations()
-            self.print_values()
+            if self.level == 1:
+                self.print_values()
             solved_count_post, potential_count_post = self.count()
-            if solved_count_post == solved_count_pre: improving = False
+            if solved_count_post == solved_count_pre:
+                if self.level > 1:
+                    improving = False
+                else:
+                    self.guess()
             if solved_count_post == 81: done = True
+        return done
 
     class Group():
         def __init__(self, sudoku, name, cells):
@@ -335,7 +390,20 @@ class Sudoku():
                 self.value = self.potential_values[0]
 
 puzzle = Sudoku(puzzle_expert)
+# puzzle = Sudoku(puzzle_hard_4)
 puzzle.solve()
+# for square in puzzle.squares:
+#     square.print()
+
+# matrix = puzzle.get_matrix()
+# print("Matrix")
+# print(matrix)
+# matrix, added_value = puzzle.add_random(matrix)
+# print("Matrix Plus")
+# print(matrix)
+# print("Added Value")
+# print(added_value[0], added_value[1])
+
 # print("\nLines")
 # for x in puzzle.lines:
 #     print(x)
