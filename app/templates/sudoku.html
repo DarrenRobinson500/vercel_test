@@ -13,11 +13,11 @@
             <div class="col-sm-6">
                 <table class="table">
                     <tbody>
-                        {% for row in puzzle %}
+                        {% for row in puzzle.table %}
                         <tr>
-                            {% for number, colour in row %}
-                            <td {% if colour == 1 %} style="background-color: #f2f2f2;" {% endif %}>
-                                <input type="text" class="form-control text-center" id="cell{{ row }}{{ col }}" name="cell{{ row }}{{ col }}" maxlength="1" value={{ number }}>
+                            {% for cell in row %}
+                            <td {% if cell.colour == 1 %} style="background-color: #f2f2f2;" {% endif %}>
+                                <input type="text" class="form-control text-center" id="{{ cell.name_HTML }}" name="{{ cell.name_HTML }}" maxlength="1" value={{ cell.value_HTML }}>
                             </td>
                             {% endfor %}
                         </tr>
@@ -25,6 +25,7 @@
                     </tbody>
                 </table>
             <button type="submit" class="btn btn-yak">Solve</button>
+            <a class="btn btn-yak" href="{% url 'sudoku' %}">Clear</a>
             </div>
          </div>
      </form>

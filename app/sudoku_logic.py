@@ -1,6 +1,17 @@
-from puzzles import *
+from .sudoku_puzzles import *
 from random import randrange
 
+colour_matrix = [
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 0, 1, 1, 1],
+]
 
 def add_colour(puzzle):
     matrix = [[None] * 9 for _ in range(9)]
@@ -25,10 +36,11 @@ class Sudoku():
         number = 0
         for row_number, row in enumerate(puzzle):
             for column_number, value in enumerate(row):
-                new = self.Cell(self, row_number, column_number, value, number)
+                colour = colour_matrix[row_number][column_number]
+                new_cell = self.Cell(self, row_number, column_number, value, number, colour)
                 number += 1
-                self.table[row_number][column_number] = new
-                self.cells.append(new)
+                self.table[row_number][column_number] = new_cell
+                self.cells.append(new_cell)
         for cell in self.cells:
             cell.like_cells = cell.get_like_cells()
         self.create_rows_cols_squares_sets()
@@ -39,7 +51,10 @@ class Sudoku():
         for row in self.table:
             row_data = []
             for cell in row:
-                row_data.append(cell.value)
+                if cell.value:
+                    row_data.append(cell.value)
+                else:
+                    row_data.append(0)
             matrix.append(row_data)
         # print("Get matrix:")
         # print(matrix)
@@ -203,7 +218,11 @@ class Sudoku():
                 if self.level > 1:
                     improving = False
                 else:
+                    pass
+                    # improving = False
                     self.guess()
+            if potential_count_post < potential_count_pre:
+                improving = True
             if solved_count_post == 81: done = True
         return done
 
@@ -343,13 +362,14 @@ class Sudoku():
                     self.cells_line.append(cell)
 
     class Cell():
-        def __init__(self, sudoku, row, column, value, number):
+        def __init__(self, sudoku, row, column, value, number, colour):
             self.sudoku = sudoku
             self.row = row
             self.column = column
             self.square = int(row / 3) * 3 + int(column / 3)
             self.number = number
-            if value == 0:
+            self.colour = colour
+            if value == 0 or value is None:
                 self.potential_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
                 self.value = None
             else:
@@ -364,6 +384,13 @@ class Sudoku():
 
         def name(self):
             return f"Cell{self.row}{self.column}"
+
+        def value_HTML(self):
+            if self.value: return self.value
+            return ""
+
+        def name_HTML(self):
+            return f"cell{self.row}{self.column}"
 
         def get_like_cells(self):
             self.like_cells = []
@@ -389,9 +416,10 @@ class Sudoku():
             if len(self.potential_values) == 1:
                 self.value = self.potential_values[0]
 
-puzzle = Sudoku(puzzle_expert)
-# puzzle = Sudoku(puzzle_hard_4)
-puzzle.solve()
+# puzzle = Sudoku(puzzle_expert)
+# puzzle.solve()
+
+
 # for square in puzzle.squares:
 #     square.print()
 
@@ -434,8 +462,6 @@ puzzle.solve()
 #
 # print()
 # print("Post triples")
-# for cell in puzzle.groups[5].cells:
-#     print(cell)
 
 
 # print(puzzle.table[0][3])
