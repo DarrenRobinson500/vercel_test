@@ -12,7 +12,7 @@ import socket
 Event_Tuple = namedtuple('Event_Tuple', ['date', 'description'])
 Dog_Diary = namedtuple('Dog_Diary', ['date', 'bookings'])
 
-nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "dogs", "dog_diary"]
+nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", "wordle", "wordle_remaining", "word", "sudoku", "dogs", "dog_diary"]
 
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
