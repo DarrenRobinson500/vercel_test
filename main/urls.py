@@ -35,6 +35,7 @@ urlpatterns = [
     path("notes", notes, name="notes"),
     path("note/<id>", note, name="note"),
     path("edit_note/<id>", edit_note, name="edit_note"),
+    path("manual_rollforward/<id>", manual_rollforward, name="manual_rollforward"),
     path("up/<id>", up, name="up"),
     path("down/<id>", down, name="down"),
     path("delete_note/<id>", delete_note, name="delete_note"),

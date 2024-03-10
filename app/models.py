@@ -6,6 +6,7 @@ from django.core.files.storage import FileSystemStorage
 
 from django.db.models import *
 from datetime import datetime, date, timedelta, time
+from dateutil.relativedelta import relativedelta
 from django.db.models.functions import ExtractMonth, ExtractDay
 # from ckeditor.fields import RichTextField
 from django_ckeditor_5.fields import CKEditor5Field
@@ -37,6 +38,7 @@ class Shop(Model):
         return False
 
     def max_child_number(self):
+        children = Shopping.objects.filter(shop=self).order_by("-order")
         children = Shopping.objects.filter(shop=self).order_by("-order")
         if len(children) == 0: return 0
         if children[0].order: return children[0].order
@@ -98,7 +100,8 @@ class Diary(Model):
     def __str__(self): return "[" + str(self.entry_date) + "] " + self.text[0:50]
 
 class Note(Model):
-    choices = [("Weekly", "Weekly"), ("Fortnightly", "Fortnightly"), ("Monthly", "Monthly"), ("Annually", "Annually"), ]
+    freq_choices = [("Weekly", "Weekly"), ("Fortnightly", "Fortnightly"), ("Monthly", "Monthly"), ("Annually", "Annually"), ]
+    bool_choices = [("No", "No"), ("Yes", "Yes")]
     string_name = "Note"
     heading = TextField(null=True, blank=True)
     # text = RichTextField(null=True, blank=True)
@@ -107,9 +110,10 @@ class Note(Model):
     category = ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL)
     parent = ForeignKey('self', null=True, blank=True, on_delete=CASCADE)
     create_date = DateField(auto_now_add=True, null=True, blank=True)
-    frequency = CharField(null=True, blank=True, choices=choices)
+    frequency = CharField(null=True, blank=True, choices=freq_choices)
     note_date = DateField(null=True, blank=True)
     order = IntegerField(null=True, blank=True)
+    manual_rollforward = CharField(null=True, blank=True, choices=bool_choices, default="No")
     def __str__(self):
         if self.parent:
             chn = self.chain() + " "
@@ -121,20 +125,27 @@ class Note(Model):
         if self.parent: return f"[{self.parent}]"
         return ""
 
-    def update_date(self):
+    def update_date(self, manual=False):
         print("Update_date:", self, self.frequency)
         if not self.frequency: return
         today = date.today()
-        print("Today:", today)
-        if self.frequency == "Weekly": freq = timedelta(days=7)
-        if self.frequency == "Fortnightly": freq = timedelta(days=14)
-        if self.frequency == "Monthly": freq = timedelta(months=1)
-        if self.frequency == "Annually": freq = timedelta(months=12)
-        print("Update_date", self, freq, self.note_date, today, self.note_date < today)
-        while self.note_date < today:
-            self.note_date += freq
-            print("Updating date", self, self.note_date)
-        self.save()
+        print("Future date test", self.note_date, today, self.note_date > today)
+        if self.note_date > today: return
+        print("Manual", manual)
+        print("Manual or not:", self.manual_rollforward, not manual, self.manual_rollforward and not manual)
+        if self.manual_rollforward and not manual:
+            print("Update date: Set to today:", today)
+            self.note_date = today
+            self.save()
+            print("Within models:", self.note_date)
+        else:
+            if self.frequency == "Weekly": freq = relativedelta(weeks=1)
+            if self.frequency == "Fortnightly": freq = relativedelta(weeks=2)
+            if self.frequency == "Monthly": freq = relativedelta(months=1)
+            if self.frequency == "Annually": freq = relativedelta(years=1)
+            while self.note_date <= today: self.note_date += freq
+            self.save()
+            print("Update date: add frequency", self.note_date)
 
     def parents(self):
         result = []

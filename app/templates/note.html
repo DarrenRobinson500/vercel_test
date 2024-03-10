@@ -4,7 +4,6 @@
     <h1>{{ object | safe }}</h1>
 
     {% if object.parent %}
-        Parent: <a href="{% url 'note' object.parent.id %}">{{ object.parent_text }}</a><br>
         Hierarchy: {% for parent in object.parents %}
             <a href="{% url 'note' parent.id %}">{{ parent.heading }}</a> >
         {% endfor %}<br>
@@ -15,7 +14,11 @@
         {{ form.media }}
         {{ form.as_p }}
         <button type="submit" class="btn btn-yak">Save note</button>
+    {% if object.manual_rollforward == "Yes" %}
+        <a class="btn btn-yak" href="{% url "manual_rollforward" object.id %}">Update Date</a>
+    {% endif %}
     </form>
+
 
     <table class="table">
       <tbody>

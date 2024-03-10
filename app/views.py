@@ -335,6 +335,10 @@ def edit_note(request, id):
 def note(request, id):
     if not request.user.is_authenticated: return redirect("login")
     object = Note.objects.get(id=id)
+    if object.frequency:
+        object.update_date()
+        object = Note.objects.get(id=id)
+        print(object.note_date)
     if request.method == 'POST':
         form = NoteForm(request.POST or None)
         if form.is_valid():
@@ -355,6 +359,15 @@ def note(request, id):
     home_pc = socket.gethostname() == "Mum_and_Dads"
     context = {'object': object, 'categories': categories, 'children': children, 'count': count, 'form_empty': form_empty, 'form': form, 'home_pc': home_pc}
     return render(request, 'note.html', context)
+
+def manual_rollforward(request, id):
+    object = Note.objects.get(id=id)
+    object.update_date(manual=True)
+    return redirect(f"/note/{id}")
+
+
+    # return redirect("note", str(object.parent.id))
+
 
 def up(request, id):
     return reorder(request, -1, id)
@@ -452,6 +465,12 @@ def events(request):
         for event_day in event_list:
             if event.date == event_day[0]:
                 event_day[1].append(event.description)
+
+    # Notes - Update recurring notes
+    notes = Note.objects.filter(frequency__isnull=False)
+    print("\nRecurring Notes")
+    for note in notes:
+        note.update_date()
 
     # Notes
     notes = Note.objects.filter(note_date__gte=today).order_by('note_date')

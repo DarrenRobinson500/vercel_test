@@ -66,18 +66,17 @@ class DiaryForm(ModelForm):
 class NoteForm(ModelForm):
     class Meta:
         model = Note
-        fields = ['heading', 'text', 'category', 'note_date', 'frequency']
+        fields = ['heading', 'text', 'category', 'note_date', 'frequency', 'manual_rollforward']
         labels = {
             'heading': "",
             'text': "",
-            'category': "",
-            'frequency': "",
         }
         widgets = {
             'heading': TextInput(attrs={'class':'form-control', 'placeholder': "Heading"}),
             'category': Select(attrs={'class': 'form-control'}),
             'note_date': DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'frequency': Select(attrs={'class': 'form-control'}),
+            'manual_rollforward': Select(attrs={'class': 'form-control', 'placeholder': "Manual Rollforward"}),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
