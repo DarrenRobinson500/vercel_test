@@ -1,0 +1,12 @@
+{% extends 'base.html'%}
+{% block content %}
+
+    <h1>New Dog</h1><br>
+    <form class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-yak">Create New Dog</button>
+     </form>
+
+{% endblock %}

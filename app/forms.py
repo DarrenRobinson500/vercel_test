@@ -33,6 +33,24 @@ class DogForm(ModelForm):
             "image": FileInput(attrs={"class": "form-control", "placeholder": ""}),
         }
 
+class DogFormNoNotes(ModelForm):
+    class Meta:
+        model = Dog
+        fields = ['name', 'owners', 'owners_link', "owners_number", 'image', "approved"]
+        widgets = {
+            'owners_link': Select(attrs={'class': 'form-control'}),
+            'name': TextInput(attrs={'class':'form-control', 'placeholder': "Name"}),
+            'owners': TextInput(attrs={'class':'form-control', 'placeholder': "Owners"}),
+            'owners_number': TextInput(attrs={'class':'form-control', 'placeholder': "Mobile"}),
+            'approved': Select(attrs={'class': 'form-control'}),
+            "image": FileInput(attrs={"class": "form-control", "placeholder": ""}),
+        }
+
+class BookingForm(ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['start_date', 'end_date']
+
 class TennisForm(ModelForm):
     class Meta:
         model = TennisMatch
@@ -41,11 +59,6 @@ class TennisForm(ModelForm):
             'player_A': TextInput(attrs={'class': 'form-control', 'placeholder': "Name"}),
             'player_B': TextInput(attrs={'class': 'form-control', 'placeholder': "Name"}),
         }
-
-class BookingForm(ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['start_date', 'end_date']
 
 class CategoryForm(ModelForm):
     class Meta:

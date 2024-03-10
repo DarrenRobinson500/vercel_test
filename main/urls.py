@@ -24,12 +24,15 @@ urlpatterns = [
     path('downloadpage', downloadpage, name="downloadpage"),
 
     # Dogs
+    path("dog_new", dog_new, name="dog_new"),
     path("dogs", dogs, name="dogs"),
     path("dog/<id>", dog, name="dog"),
     path("dog_edit/<id>", dog_edit, name="dog_edit"),
     path("dog_diary", dog_diary, name="dog_diary"),
     path("dog_duration/<dur>", dog_duration, name="dog_duration"),
     path("booking/<id>", booking, name="booking"),
+    path("booking_edit/<id>", booking_edit, name="booking_edit"),
+    path("booking_delete/<id>", booking_delete, name="booking_delete"),
 
     # Notes
     path("notes", notes, name="notes"),

@@ -2,7 +2,7 @@
 {% block content %}
 
 
-    <h1>Dogs</h1>
+    <h1>Dogs</h1><a class="btn btn-yak" href="{% url 'dog_new' %}">New Dog</a><br>
 
     {% for dog in dogs %}
         <a class="btn btn-yak" href="{% url 'dog' dog.id %}"
@@ -11,5 +11,7 @@
                 <img src="{{ dog.image.url }}" height="120"/>
             {% endif %}</a>
     {% endfor %}
+<br><br>
+
 
 {% endblock %}

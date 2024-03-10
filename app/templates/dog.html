@@ -3,9 +3,9 @@
 
     {% for dog_button in dogs %}
         <a class="btn btn-yak btn-sm" href="{% url 'dog' dog_button.id %}"
-       {% if dog_button == dog %}style="margin-top: 10px; border: 2px solid black;"{% else %} style="margin-top: 10px" {% endif %}
+       {% if dog_button == dog %} style="margin-top: 10px; border: 2px solid black;"{% else %} style="margin-top: 10px" {% endif %}
         >{{ dog_button.name }}</a>
-    {% endfor %}
+    {% endfor %}<a class="btn btn-yak btn-sm" href="{% url 'dog_new' %}" style="margin-top: 10px" >New Dog</a>
 
     <h1>{{ dog.name }}</h1>
 
@@ -35,10 +35,10 @@
              <td>
                 {% for booking in dog.bookings %}
                     {% if booking.in_future %}
-                        {{ booking.short_name }}<br>
+                         <a class="btn btn-yak btn-sm" href="{% url 'booking_edit' booking.id %}" style="margin-top: 10px">{{ booking.short_name }}</a><br>
                     {% endif %}
                 {% endfor %}
-                <a class="btn btn-yak btn-sm" href="{% url 'booking' dog.id %}">Add booking</a>
+                <a class="btn btn-yak btn-sm" href="{% url 'booking' dog.id %}" style="margin-top: 10px">Add booking</a>
              </td>
      </table>
 

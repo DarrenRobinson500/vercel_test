@@ -172,6 +172,18 @@ def dogs(request):
     context = {"dogs": dogs}
     return render(request, 'dogs.html', context)
 
+def dog_new(request):
+    if not request.user.is_authenticated: return redirect("login")
+    if request.method == 'POST':
+        form = DogForm(request.POST, request.FILES)
+        if form.is_valid(): form.save()
+        return redirect('dogs')
+
+    form = DogForm()
+    context = {"form": form}
+    print("Rendering HTML")
+    return render(request, 'dog_new.html', context)
+
 def dog(request, id):
     if not request.user.is_authenticated: return redirect("login")
     dogs = Dog.objects.all()
@@ -188,39 +200,12 @@ def dog(request, id):
     print("Rendering HTML")
     return render(request, 'dog.html', context)
 
-def dogs_old(request):
-    if not request.user.is_authenticated: return redirect("login")
-    form = DogForm()
-    if request.method == 'POST':
-        form = DogForm(request.POST, request.FILES)
-        if form.is_valid(): form.save()
-    dogs = Dog.objects.all()
-    dogs = sorted(dogs, key=lambda d: d.next_booking())
-    table_info = []
-    for dog in dogs:
-        dog_info = [dog.name, dog.id, dog.owners, dog.owners_number, dog.notes, dog.approved, []]
-        table_info.append(dog_info)
-
-    today = date.today()
-    bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
-    for booking in bookings:
-        for dog_info in table_info:
-            print(dog_info[1], booking.dog.id)
-            if dog_info[1] == booking.dog.id:
-                dog_info[6].append(booking.short_name() + "\n")
-
-    context = {'table_info': table_info, 'title': "Dogs", "form": form, "edit_mode": False, 'people': people()}
-    return render(request, 'dog_simple.html', context)
-
 def dog_edit(request, id):
-    print("A")
     if not request.user.is_authenticated: return redirect("login")
     dog = Dog.objects.get(id=id)
     if request.method == 'POST':
-        print("B")
         form = DogForm(request.POST, request.FILES, instance=dog)
         if form.is_valid(): form.save()
-        print("C")
         return redirect("dogs")
 
     form = DogForm(instance=dog)
@@ -232,27 +217,6 @@ def dog_edit(request, id):
     context = {'objects': objects, 'title': "Dogs", 'count': count, "dog": dog, "edit_mode": True,  'people': people(),
                'options':options, 'form':form}
     return render(request, 'dog.html', context)
-
-def dog_diary_old(request):
-    if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.get(name="main")
-    today = date.today()
-
-    bookings = Booking.objects.filter(end_date__gte=today).order_by('start_date')
-    print("Dog Diary Bookings:", bookings)
-
-    dog_diary = []
-    for x in range(general.dog_diary_days):
-        day = today + timedelta(days=x)
-        day_bookings = bookings.filter(start_date__lte=day).filter(end_date__gte=day)
-        print("Dog Diary View (Day):", day, day_bookings)
-        new = Dog_Diary(day, day_bookings)
-        dog_diary.append(new)
-    general = General.objects.get(name="main")
-    durations = [30, 60, 90, 120, 150, 180, 360]
-
-    context = {'dog_diary': dog_diary, 'durations': durations, 'general': general}
-    return render(request, 'dog_diary.html', context)
 
 def dog_diary(request):
     if not request.user.is_authenticated: return redirect("login")
@@ -299,6 +263,27 @@ def booking(request, id):
 
     context = {"dog": dog, "title": f"Booking for {dog.name}"}
     return render(request, 'booking.html', context)
+
+def booking_edit(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    booking = Booking.objects.filter(id=id).first()
+    if request.method == 'POST':
+        form = BookingForm(request.POST or None, instance=booking)
+        if form.is_valid():
+            form.save()
+            return redirect("dog", booking.dog.id)
+    form = BookingForm(instance=booking)
+
+    context = {"booking": booking, "dog": booking.dog, "title": f"Edit Booking for {booking.dog.name}: { booking.short_name() }"}
+    return render(request, 'booking_edit.html', context)
+
+def booking_delete(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    booking = Booking.objects.filter(id=id).first()
+    dog = booking.dog
+    booking.delete()
+    return redirect("dog", dog.id)
+
 
 # -----------------------------
 # --------NOTES----------------
