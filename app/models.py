@@ -303,7 +303,7 @@ class Birthday(Model):
             next_age_string = f"It is the {next_age}th {self.person} anniversary in {days} days."
         if self.tag == "Passing":
             next_age_string = f"{next_age}th anniversary of {self.person}'s passing in {days} days."
-        print(self, self.tag)
+        # print(self, self.tag)
         # next_age_string = "XX"
 
         return next_age_string
