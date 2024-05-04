@@ -66,6 +66,7 @@ urlpatterns = [
     # path("hero_inc/<id>/<hero>", hero_inc, name="hero_inc"),
     path('wordle', wordle, name='wordle'),
     path('wordle_remaining', wordle_remaining, name='wordle_remaining'),
+    path('wordle_last_reviewed/<last_reviewed>', wordle_last_reviewed, name='wordle_last_reviewed'),
     path('wordle_remaining/<id>', wordle_remaining, name='wordle_remaining'),
     path('wordle_remaining/<id>/<second_word>', wordle_remaining, name='wordle_remaining'),
     path('wordle/<entry>', wordle, name='wordle'),

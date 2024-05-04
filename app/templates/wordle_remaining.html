@@ -24,10 +24,20 @@
             {% endfor %}
         </table>
         Future Average Score: <b>{{ score }}</b> (originally 3.47)<br>
-        {{ message }}<br>
-        {{ message_2 }}<br><br>
+        {% if message %}{{ message }}{% endif %}<br>
+        {% if message_2 %}{{ message_2 }}{% endif %}<br><br>
         <a href="{% url 'wordle_remaining' %}" class='btn btn-yak'>Redo</a><br>
     </div>
+    {% if date_solved_array %}
+    <div class="col-sm-2">
+        <h2>Date Solved</h2>
+        {% for date_solved, count in date_solved_array %}
+            <a href="{% url 'wordle_last_reviewed' date_solved %}">{{ date_solved | date:"j M" }}</a>
+            : {{ count }}<br>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if second_word_array_1 %}
     <div class="col-sm-5">
         <h2>Second Words</h2>
         <div class="row">
@@ -54,12 +64,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-2">
-        <h2>Date Solved</h2>
-        {% for date_solved, count in date_solved_array %}
-            {{ date_solved | date:"j M" }}: {{ count }}<br>
-        {% endfor %}
-    </div>
+    {% endif %}
 </div>
 <div class="row">
     {% for x, number in attempts_range %}

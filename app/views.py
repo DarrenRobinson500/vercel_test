@@ -24,7 +24,6 @@ def home(request):
     dogs = sorted(dogs, key=lambda d: d.next_booking())
 
     button_sets = [("note", children_notes), ("dog", dogs)]
-    print(button_sets)
 
     context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "button_sets": button_sets}
     return render(request, "home.html", context)
@@ -255,7 +254,14 @@ def booking(request, id):
         form = BookingForm(request.POST or None)
         form.instance.dog = dog
         if form.is_valid():
-            new_booking = form.save()
+            saved = False
+            for x in range(10):
+                if not saved:
+                    try:
+                        form.save()
+                        saved = True
+                    except:
+                        pass
             return redirect("dogs")
         else:
             context = {"dog": dog, "title": f"Booking for {dog.name}", "form": form}

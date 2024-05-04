@@ -42,14 +42,14 @@
              </td>
      </table>
 
-{% if edit_mode %}
-        <h1>Edit</h1><br>
-        <form class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-yak">Update Details</button>
-         </form>
-{% endif %}
+<!--{% if edit_mode %}-->
+<!--        <h1>Edit</h1><br>-->
+<!--        <form class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">-->
+<!--            {% csrf_token %}-->
+<!--            {{ form.media }}-->
+<!--            {{ form.as_p }}-->
+<!--            <button type="submit" class="btn btn-yak">Update Details</button>-->
+<!--         </form>-->
+<!--{% endif %}-->
 
 {% endblock %}

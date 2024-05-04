@@ -23,9 +23,9 @@ class DogForm(ModelForm):
         fields = ['name', 'owners', 'owners_link', "owners_number", 'notes', 'image', "approved"]
         widgets = {
             'owners_link': Select(attrs={'class': 'form-control'}),
-            "text": CKEditor5Widget(
-                attrs={"class": "django_ckeditor_5"}, config_name="comment"
-            ),
+            # "text": CKEditor5Widget(
+            #     attrs={"class": "django_ckeditor_5"}, config_name="comment"
+            # ),
             'name': TextInput(attrs={'class':'form-control', 'placeholder': "Name"}),
             'owners': TextInput(attrs={'class':'form-control', 'placeholder': "Owners"}),
             'owners_number': TextInput(attrs={'class':'form-control', 'placeholder': "Mobile"}),
