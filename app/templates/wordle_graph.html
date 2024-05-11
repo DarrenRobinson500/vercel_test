@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Wordle Graph</h1>
+
+{% for wordle in wordles %}
+    {{ wordle }} {{ wordle.guesses }} {{ wordle.prior }}<br>
+{% endfor %}
+
+<a href="https://sketchviz.com/" target="_blank">SketchViz</a><br><br>
+digraph G {<br>
+    {% for wordle in wordles %}
+        "{{ wordle.prior }}" -> "{{ wordle.word}}" <br>
+    {% endfor %}
+}
+<br><br>
+
+
+{% endblock %}

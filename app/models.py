@@ -444,6 +444,16 @@ class Wordle(Model):
             return f"{self.word} ({self.date})"
         else:
             return self.word
+    def guesses(self):
+        return self.guess_1, self.guess_2, self.guess_3, self.guess_4, self.guess_5, self.guess_6,
+
+    def prior(self):
+        prior = None
+        for guess in self.guesses():
+            if guess and guess != self.word: prior = guess
+        return prior
+
+
     def upper(self): return self.word.upper()
     def save_guess(self, guess, count):
         if guess is None: return

@@ -338,7 +338,6 @@ def wordle_remaining(request, id=None, second_word=None):
     date_solved_array = sorted(date_solved_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0:10]
     date_solved_array = sorted(date_solved_array, key=lambda x: (x[0] is None, x[0]))
 
-
     message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(remaining_words))*100)}% ({len(remaining_words) - len(remaining_words_not_tested)} of {len(remaining_words)})"
     message_2 = f"Hard words: {hard_words} ({int(hard_words/len(remaining_words)*1000)/10}%)"
 
@@ -375,6 +374,11 @@ def wordle_second(request, word):
         # "todays": todays_word
     }
     return render(request, "wordle_remaining.html", context)
+
+def wordle_graph(request):
+    wordles = Wordle.objects.filter(date__isnull=True)[0:5]
+    context = {'wordles': wordles}
+    return render(request, "wordle_graph.html", context)
 
 def wordle(request):
     if not request.user.is_authenticated: return redirect("login")
