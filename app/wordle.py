@@ -109,7 +109,7 @@ def get_fav_word(wordles):
     counter = Counter(all_letters)
 
     if len(wordles) > 900:
-        wordles = Wordle.objects.filter(Q(| Q(word="later") | Q(word="alert") | Q(word="stare") | Q(word="arise"))
+        wordles = Wordle.objects.filter(Q(word="later") | Q(word="alert") | Q(word="stare") | Q(word="arise"))
 
     highest_score = 0
     if len(wordles) > 0:
