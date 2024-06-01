@@ -17,6 +17,7 @@ nav_bar_items = ["notes", "diary", "events", "quotes", "birthdays", "shopping", 
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
     if request.user.first_name == "Amanda": return redirect("dog_diary")
+    general = General.objects.get(name="main")
     home_pc = socket.gethostname() == "Mum_and_Dads"
     parent_note = Note.objects.exclude(parent__isnull=False).first()
     children_notes = Note.objects.filter(parent=parent_note).order_by("order")
@@ -25,7 +26,7 @@ def home(request):
 
     button_sets = [("note", children_notes), ("dog", dogs)]
 
-    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "button_sets": button_sets}
+    context = {"nav_bar_items": nav_bar_items, 'home_pc': home_pc, "button_sets": button_sets, 'general': general}
     return render(request, "home.html", context)
 
 # -----------------------------
@@ -33,6 +34,7 @@ def home(request):
 # -----------------------------
 
 def login_user(request):
+    general = General.objects.get(name="main")
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
@@ -44,7 +46,7 @@ def login_user(request):
             messages.success(request, ("Error logging in."))
             return redirect('login')
     else:
-        context = {}
+        context = {'general': general}
         return render(request, 'login.html', context)
 
 def logout_user(request):
@@ -62,6 +64,7 @@ def downloadpage(request):
 def downloadexcel(request):
     if not request.user.is_authenticated: return redirect("login")
     if not socket.gethostname() == "Mum_and_Dads": return redirect("notes")
+    general = General.objects.get(name="main")
 
     writer = ExcelWriter('my_data.xlsx', engine='xlsxwriter')
     all_models = \
@@ -138,7 +141,7 @@ def load_data_ind(request, model_name):
                 if type(link_id) is int:
                     create_link(model, link_model, link_name, current_id, link_id)
 
-    context = {"heading": model_name, "table_data": table_data,}
+    context = {"heading": model_name, "table_data": table_data, 'general': general}
     return render(request, "table.html", context)
 
 def add_record(model, headings, values):
@@ -166,25 +169,28 @@ def create_link(own_model, link_model, field, own_id, link_id, ):
 
 def dogs(request):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     dogs = Dog.objects.all()
     dogs = sorted(dogs, key=lambda d: d.next_booking())
-    context = {"dogs": dogs}
+    context = {"dogs": dogs, 'general': general}
     return render(request, 'dogs.html', context)
 
 def dog_new(request):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     if request.method == 'POST':
         form = DogForm(request.POST, request.FILES)
         if form.is_valid(): form.save()
         return redirect('dogs')
 
     form = DogForm()
-    context = {"form": form}
+    context = {"form": form, 'general': general}
     print("Rendering HTML")
     return render(request, 'dog_new.html', context)
 
 def dog(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     dogs = Dog.objects.all()
     dogs = sorted(dogs, key=lambda d: d.next_booking())
     dog = Dog.objects.get(id=id)
@@ -195,12 +201,13 @@ def dog(request, id):
     form = DogForm(instance=dog)
 
     edit_mode = True
-    context = {"dog": dog, "dogs": dogs, "form": form, 'edit_mode': edit_mode}
+    context = {"dog": dog, "dogs": dogs, "form": form, 'edit_mode': edit_mode, 'general': general}
     print("Rendering HTML")
     return render(request, 'dog.html', context)
 
 def dog_edit(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     dog = Dog.objects.get(id=id)
     if request.method == 'POST':
         form = DogForm(request.POST, request.FILES, instance=dog)
@@ -214,7 +221,7 @@ def dog_edit(request, id):
     count = len(objects)
     options = ["Yes", "No", "Limited"]
     context = {'objects': objects, 'title': "Dogs", 'count': count, "dog": dog, "edit_mode": True,  'people': people(),
-               'options':options, 'form':form}
+               'options':options, 'form':form, 'general': general}
     return render(request, 'dog.html', context)
 
 def dog_diary(request):
@@ -249,6 +256,7 @@ def dog_duration(request, dur):
 
 def booking(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     dog = Dog.objects.filter(id=id).first()
     if request.method == 'POST':
         form = BookingForm(request.POST or None)
@@ -272,6 +280,7 @@ def booking(request, id):
 
 def booking_edit(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     booking = Booking.objects.filter(id=id).first()
     if request.method == 'POST':
         form = BookingForm(request.POST or None, instance=booking)
@@ -280,7 +289,7 @@ def booking_edit(request, id):
             return redirect("dog", booking.dog.id)
     form = BookingForm(instance=booking)
 
-    context = {"booking": booking, "dog": booking.dog, "title": f"Edit Booking for {booking.dog.name}: { booking.short_name() }"}
+    context = {"booking": booking, "dog": booking.dog, "title": f"Edit Booking for {booking.dog.name}: { booking.short_name() }", 'general': general}
     return render(request, 'booking_edit.html', context)
 
 def booking_delete(request, id):
@@ -297,7 +306,6 @@ def booking_delete(request, id):
 
 def notes(request):
     if not request.user.is_authenticated: return redirect("login")
-    form = NoteForm()
     if request.method == 'POST':
         form = NoteForm(request.POST or None)
         if form.is_valid(): form.save()
@@ -307,6 +315,7 @@ def notes(request):
 
 def edit_note(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     object = Note.objects.get(id=int(id))
     if request.method == 'POST':
         form = NoteForm(request.POST, instance=object)
@@ -320,11 +329,12 @@ def edit_note(request, id):
                     print("Error:", field, error)
     form = NoteForm(instance=object)
     categories = Category.objects.all()
-    context = {'object': object, 'categories': categories, 'form': form}
+    context = {'object': object, 'categories': categories, 'form': form, 'general': general}
     return render(request, 'note_edit.html', context)
 
 def note(request, id):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     object = Note.objects.get(id=id)
     if object.frequency:
         object.update_date()
@@ -348,7 +358,7 @@ def note(request, id):
     categories = Category.objects.all()
 
     home_pc = socket.gethostname() == "Mum_and_Dads"
-    context = {'object': object, 'categories': categories, 'children': children, 'count': count, 'form_empty': form_empty, 'form': form, 'home_pc': home_pc}
+    context = {'object': object, 'categories': categories, 'children': children, 'count': count, 'form_empty': form_empty, 'form': form, 'home_pc': home_pc, 'general': general}
     return render(request, 'note.html', context)
 
 def manual_rollforward(request, id):
@@ -419,6 +429,7 @@ def delete_note(request, id):
 
 def diary(request):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     form = None
     if request.method == 'POST':
         form = DiaryForm(request.POST or None)
@@ -426,7 +437,7 @@ def diary(request):
     form = DiaryForm()
     objects = Diary.objects.all().order_by("-entry_date")
     count = len(objects)
-    context = {'objects': objects, 'title': "Diary", 'count': count, "form": form}
+    context = {'objects': objects, 'title': "Diary", 'count': count, "form": form, 'general': general}
     return render(request, 'diary.html', context)
 
 def diary_delete(request, id):
@@ -507,12 +518,13 @@ def event_duration(request, dur):
 # -----------------------------
 
 def quotes(request):
+    general = General.objects.get(name="main")
     if not request.user.is_authenticated: return redirect("login")
     if request.method == 'POST':
         form = QuoteForm(request.POST or None)
         if form.is_valid(): form.save()
     objects = Quote.objects.all().order_by('-date')
-    context = {'quotes': objects}
+    context = {'quotes': objects, 'general': general}
     return render(request, 'quotes.html', context)
 
 # -----------------------------
@@ -520,13 +532,14 @@ def quotes(request):
 # -----------------------------
 
 def birthdays(request):
+    general = General.objects.get(name="main")
     if request.method == 'POST':
         form = BirthdayForm(request.POST or None)
         if form.is_valid(): form.save()
     objects = Birthday.objects.all().order_by(ExtractMonth('date'), ExtractDay('date'))
     count = len(objects)
 
-    context = {'objects': objects, "count": count, "min_days": min_days_to_birthday(), 'title': "Birthdays"}
+    context = {'objects': objects, "count": count, "min_days": min_days_to_birthday(), 'title': "Birthdays", 'general': general}
     return render(request, 'birthdays.html', context)
 
 # -----------------------------
@@ -535,13 +548,14 @@ def birthdays(request):
 
 def shopping(request):
     if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
     if request.method == 'POST':
         form = ShoppingForm(request.POST)
         if form.is_valid(): form.save()
     shops = Shop.objects.order_by('order')
 
     form = ShoppingForm()
-    context = {'form': form, 'shops': shops}
+    context = {'form': form, 'shops': shops, 'general': general}
     return render(request, 'shopping.html', context)
 
 def shopping_save(request):
@@ -564,6 +578,7 @@ def shopping_clear(request):
         object.save()
 
     return redirect('shopping')
+
 def shopping_delete(request, id):
     object = Note.objects.filter(id=id).first()
     if object and object.shop: parent = object.shop
@@ -572,9 +587,10 @@ def shopping_delete(request, id):
     else: return redirect("shopping")
 
 def shopping_edit(request, id):
+    general = General.objects.get(name="main")
     shop = Shop.objects.get(id=id)
     shop.order_children()
-    context = {'shop': shop}
+    context = {'shop': shop, 'general': general}
     return render(request, "shopping_edit.html", context)
 
 def shopping_up(request, id): return shopping_reorder(request, -1, id)

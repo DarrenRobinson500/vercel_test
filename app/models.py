@@ -19,12 +19,18 @@ class CustomStorage(FileSystemStorage):
     location = os.path.join(settings.MEDIA_ROOT, "django_ckeditor_5")
     base_url = urljoin(settings.MEDIA_URL, "django_ckeditor_5/")
 
+class Style(Model):
+    image = CharField(max_length=30, default="monet.jpg")
+    colour = CharField(max_length=30, default="#C0DACC")
+    def __str__(self): return self.image
+
 class General(Model):
     string_name = "General"
     name = CharField(max_length=30, default="main")
     dog_diary_days = IntegerField(default=200)
     event_days = IntegerField(default=10)
     wordles_to_do = IntegerField(default=3)
+    style = ForeignKey(Style, null=True, blank=True, on_delete=SET_NULL)
     def __str__(self): return self.name
 
 class Shop(Model):
@@ -685,5 +691,5 @@ def get_birthday_reminders():
 
 all_models = \
     [Category, Diary, Note, Quote, Birthday, Dog, Booking, Event, TH, Player, Shopping, Shop, Timer, TimerElement,
-     New_Tide, Tide_Date, Weather, Wordle, TennisMatch, TennisGame, General]
+     New_Tide, Tide_Date, Weather, Wordle, TennisMatch, TennisGame, General, Style]
 

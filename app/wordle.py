@@ -383,6 +383,7 @@ def wordle(request):
     #         Wordle(word=word).save()
 
     input_array = []
+    general = General.objects.get(name="main")
 
     # print("Start Input Array:", input_array)
     value = ["", "", "", "", "", ]
@@ -438,7 +439,7 @@ def wordle(request):
     used_words = Wordle.objects.filter(date__isnull=False).order_by('-date')[0:10]
 
     context = {'words': words, 'numbers': numbers, 'fav_word': fav_word, 'input_array': input_array, 'counter': counter, 'random_item': random_item,
-               'entry':entry, 'green1': green1, 'green2': green2, 'green3': green3, 'green4': green4, 'green5': green5, 'used_words': used_words}
+               'entry':entry, 'green1': green1, 'green2': green2, 'green3': green3, 'green4': green4, 'green5': green5, 'used_words': used_words, 'general': general}
 
     return render(request, 'wordle.html', context)
 

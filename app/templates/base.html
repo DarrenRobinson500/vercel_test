@@ -3,7 +3,8 @@
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <link rel="icon" href="{% static 'pinkyak.ico' %}">
+
+    <link rel="icon" href="{% static general.style.image %}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -24,6 +25,16 @@
 <!--    <script src={% static 'semantic.js' %} defer></script>-->
 <!--    <link rel="stylesheet" href={% static 'style.css' %}>-->
 
+    <style>
+        .btn-yak {
+            color: black;
+            background-color: {{ general.style.colour }};
+            border-color: {{ general.style.colour }}
+            padding: 10px
+        }
+    </style>
+
+
   </head>
 
 
@@ -41,7 +52,7 @@
    {% endif %}
 
 <div>
-    <img src="{% static 'monet.jpg' %}" alt="My Image" height="240" style="margin-left: 10px; padding: 10px;">
+    <img src="{% static general.style.image %}" alt="My Image" height="240" style="margin-left: 10px; padding: 10px;">
 </div>
 
    <br/>
