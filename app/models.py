@@ -451,6 +451,7 @@ class Wordle(Model):
         prior = None
         for guess in self.guesses():
             if guess and guess != self.word: prior = guess
+        if not prior: prior = "No prior"
         return prior
 
 

@@ -34,7 +34,7 @@
         {% for date_solved, count in date_solved_array %}
             <a href="{% url 'wordle_last_reviewed' date_solved %}">{{ date_solved | date:"j M" }}</a>
             : {{ count }}<br>
-        {% endfor %}
+        {% endfor %}<br>
     </div>
     {% endif %}
     {% if second_word_array_1 %}

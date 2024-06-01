@@ -2,17 +2,18 @@
 {% block content %}
 <h1>Wordle Graph</h1>
 
-{% for wordle in wordles %}
-    {{ wordle }} {{ wordle.guesses }} {{ wordle.prior }}<br>
-{% endfor %}
+<a href="{% url 'wordle_graph' first_word %}">{{ first_word | upper }}</a>
+<hr>
+
+{% for word, count in second_word_array %}
+    <a href="{% url 'wordle_graph' word %}">{{ word | upper }}</a>: {{ count }}
+{% endfor %}<br>
+<hr>
 
 <a href="https://sketchviz.com/" target="_blank">SketchViz</a><br><br>
-digraph G {<br>
-    {% for wordle in wordles %}
-        "{{ wordle.prior }}" -> "{{ wordle.word}}" <br>
-    {% endfor %}
-}
-<br><br>
 
+{% if word %}
+    Code copied to clipboard
+{% endif %}
 
 {% endblock %}
