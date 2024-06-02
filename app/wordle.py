@@ -251,6 +251,7 @@ def wordle_last_reviewed(request, last_reviewed):
     return render(request, "wordle_remaining.html", context)
 
 def wordle_remaining(request, id=None, second_word=None):
+    general = General.objects.get(name="main")
     # print("Wordle remaining - start")
     if not request.user.is_authenticated: return redirect("login")
     if second_word:
@@ -341,7 +342,7 @@ def wordle_remaining(request, id=None, second_word=None):
     context = {'word': word, 'second_word': second_word, 'input_array': input_array, 'words': wordles, 'attempts_range': attempts_range,
                'remaining_words': remaining_words, 'score': score, 'date_solved_array': date_solved_array,
                'second_word_array_1': second_word_array_1, 'second_word_array_2': second_word_array_2, 'second_word_array_3': second_word_array_3,
-               "message": message, "message_2": message_2}
+               "message": message, "message_2": message_2, 'general': general}
     return render(request, "wordle_remaining.html", context)
 
 def wordle_graph(request, word=None):
