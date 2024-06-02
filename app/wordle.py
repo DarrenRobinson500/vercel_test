@@ -385,6 +385,7 @@ def wordle(request):
 
     input_array = []
     general = General.objects.get(name="main")
+    change_style()
 
     # print("Start Input Array:", input_array)
     value = ["", "", "", "", "", ]

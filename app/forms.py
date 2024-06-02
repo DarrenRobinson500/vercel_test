@@ -105,3 +105,9 @@ class BirthdayForm(ModelForm):
         model = Birthday
         fields = ['person', 'date', ]
 
+def change_style():
+    general = General.objects.get(name="main")
+    random_style = Style.objects.order_by('?').first()
+    general.style = random_style
+    general.save()
+
