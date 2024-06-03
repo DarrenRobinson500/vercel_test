@@ -27,7 +27,10 @@
         {% for item in objects %}
         <tr>
             <td><span style="color: #808080;">{{ item.entry_date }}</span>{{ item.text | safe }}</td>
-            <td><a class="btn btn-yak" href="{% url 'diary_delete' item.id %}">Delete</a></td>
+            <td>
+                <a class="btn btn-yak" href="{% url 'diary_edit' item.id %}">Edit</a>
+                <a class="btn btn-yak" href="{% url 'diary_delete' item.id %}">Delete</a>
+            </td>
         </tr>
         {% endfor %}
       </tbody>

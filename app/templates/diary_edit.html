@@ -1,0 +1,15 @@
+{% extends 'base.html'%}
+{% block content %}
+
+     <h1 class="form-label">{{ title }}</h1><br>
+
+     <form action="{% url 'diary' %}" class="form-inline my-2 my-lg-0" method="POST">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-yak">Update diary entry</button>
+    </form>
+
+<hr>
+
+{% endblock %}

@@ -428,17 +428,31 @@ def delete_note(request, id):
 # -----------------------------
 
 def diary(request):
+    # print("Normal Diary")
     if not request.user.is_authenticated: return redirect("login")
     general = General.objects.get(name="main")
-    form = None
+    # form = None
     if request.method == 'POST':
         form = DiaryForm(request.POST or None)
         if form.is_valid(): form.save()
     form = DiaryForm()
     objects = Diary.objects.all().order_by("-entry_date")
-    count = len(objects)
-    context = {'objects': objects, 'title': "Diary", 'count': count, "form": form, 'general': general}
+    context = {'objects': objects, 'title': "Diary", "form": form, 'general': general}
     return render(request, 'diary.html', context)
+
+def diary_edit(request, id):
+    # print("Diary Edit")
+    if not request.user.is_authenticated: return redirect("login")
+    item = Diary.objects.get(id=id)
+    if request.method == 'POST':
+        # print("Diary edit post")
+        form = DiaryForm(request.POST, instance=item)
+        if form.is_valid(): form.save()
+    form = DiaryForm(instance=item)
+    objects = Diary.objects.all().order_by("-entry_date")
+    general = General.objects.get(name="main")
+    context = {'objects': objects, 'title': "Diary", "form": form, 'general': general}
+    return render(request, 'diary_edit.html', context)
 
 def diary_delete(request, id):
     object = Diary.objects.filter(id=id).first()
