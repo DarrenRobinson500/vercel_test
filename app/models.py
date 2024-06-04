@@ -33,6 +33,9 @@ class General(Model):
     style = ForeignKey(Style, null=True, blank=True, on_delete=SET_NULL)
     def __str__(self): return self.name
 
+    def styles(self):
+        return Style.objects.all()
+
 class Shop(Model):
     string_name = "Shop"
     name = TextField(null=True, blank=True)
