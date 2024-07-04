@@ -1,3 +1,4 @@
 /app/migrations
+/app/static
 *.xlsx
 .env

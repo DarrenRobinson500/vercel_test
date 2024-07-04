@@ -3,7 +3,7 @@
 
 <style>
     .green {background-color:green;}
-    .amber {background-color:orange;}
+    .amber {background-color:#C7BB8D;}
     .grey {background-color:grey;}
 </style>
 
@@ -46,6 +46,8 @@
             </table>
             <input type = 'submit' value = 'Update' class='btn btn-yak btn-sm' style="margin-top: 10px">
         </form>
+
+<!--Rest of the page-->
         <a href="{% url 'clear' %}" class='btn btn-yak btn-sm' style="margin-top: 10px">Clear</a>
         <a href="https://www.nytimes.com/games/wordle/index.html" target="_blank" class='btn btn-yak btn-sm' style="margin-top: 10px">NY Times</a>
         <a href="{% url 'wordle_remaining' %}" class='btn btn-yak btn-sm' style="margin-top: 10px">Remaining</a>

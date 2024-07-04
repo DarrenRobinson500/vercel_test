@@ -387,20 +387,16 @@ def wordle(request):
     general = General.objects.get(name="main")
     change_style()
 
-    # print("Start Input Array:", input_array)
     value = ["", "", "", "", "", ]
     colour = ["", "", "", "", "", ]
 
     if request.method == 'POST':
-        # print("\nPrinting request post")
         for key, value_X in request.POST.items():
             # print(f"{key}: {value_X} {key[0:5]}")
 
             if key[0:5] == "Prior":
                 array = ast.literal_eval(value_X)
                 input_array.append(array)
-        # print("Finished Printing request post\n")
-        # print("Input array (pre):", input_array)
 
         numbers = ["1", "2", "3", "4", "5", ]
         for x in numbers:
@@ -423,6 +419,10 @@ def wordle(request):
 
     # Put remaining, valid words into 'words' list
     words = get_valid_words(input_array)
+    if len(words) < 100:
+        for wordle in words:
+            wordle.last_reviewed = None
+            wordle.save()
 
     # Get fav word
     counter, fav_word = get_fav_word(words)
