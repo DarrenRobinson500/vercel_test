@@ -63,7 +63,8 @@ def add_wordle(request, word):
         if todays_wordle.guess_2 is None: solve_wordle(todays_wordle)
         todays_wordle.date = today
         todays_wordle.save()
-        messages.success(request, f"'{word}' recorded as today's word")
+        reset_words = test_all_wordles()
+        messages.success(request, f"'{word}' recorded as today's word. Words reset: {reset_words}")
     else:
         messages.success(request, f"'{word}' wasn't found in database")
     return redirect("wordle_remaining")
@@ -532,13 +533,16 @@ def test_all_wordles():
     wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
     word_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
 
+    reset_wordles = []
     for word in word_list:
         is_valid = valid_wordle(word, word_list)
         if not is_valid:
             invalid_wordle = Wordle.objects.get(word=word['word'])
             invalid_wordle.last_reviewed = None
             invalid_wordle.save()
+            reset_wordles.append(invalid_wordle)
             print("Resetting:", invalid_wordle)
+    return reset_wordles
 
 def wordle_validation(request, id=None):
     if not request.user.is_authenticated: return redirect("login")
