@@ -64,11 +64,6 @@ def add_wordle(request, word):
         todays_wordle.date = today
         todays_wordle.save()
         messages.success(request, f"'{word}' recorded as today's word")
-        affected_wordles = Wordle.objects.filter(guess_2=todays_wordle.guess_2, date__isnull=True)
-        for wordle in affected_wordles:
-            # print("Affected word:", wordle)
-            wordle.last_reviewed = None
-            wordle.save()
     else:
         messages.success(request, f"'{word}' wasn't found in database")
     return redirect("wordle_remaining")
@@ -151,6 +146,7 @@ def solve_wordle(wordle):
     remaining_words = Wordle.objects.filter(date__isnull=True)
     fav_word = remaining_words.filter(word="arise").first()
     attempts = [fav_word.word, ]
+    count = 0
     while fav_word != wordle:
         input_row = []
         colours = determine_colours(wordle.word, fav_word.word)
@@ -158,8 +154,10 @@ def solve_wordle(wordle):
         input_array.append(input_row)
         remaining_words = get_valid_words(input_array, remaining_words)
         fav_word = get_fav_word_simple(remaining_words)
-        attempts.append(fav_word.word)
-        # wordle.save_guess(fav_word, count)
+        count += 1
+        if fav_word:
+            attempts.append(fav_word.word)
+            wordle.save_guess(fav_word, count)
         # Fav word is solved => save it.
         # fav_word.attempts = len(input_array) + 1
         # fav_word.last_reviewed = date.today()
@@ -347,6 +345,7 @@ def wordle_remaining(request, id=None, second_word=None):
 
 def wordle_graph(request, word=None):
     categories_second_word = Wordle.objects.filter(date__isnull=True).values('guess_2').annotate(count=Count('guess_2'))
+    general = General.objects.get(name="main")
     second_word_array = []
     for category in categories_second_word:
         second_word_array.append((category['guess_2'], category['count']))
@@ -364,14 +363,15 @@ def wordle_graph(request, word=None):
         graph_string = "digraph G{ \n"
         graph_string += "rankdir=LR;\n"
         for wordle in wordles:
-            graph_string += wordle.prior() + " -> " + wordle.word + "\n"
+            prior = wordle.prior()
+            graph_string += prior + " -> " + wordle.word + "\n"
             # if wordle.guess_2 != wordle.prior().guess_2:
             #     prior_wordle = Wordle.objects.filter(word=wordle.prior())
             #     print("Graph string:", wordle, wordle.guess_2, prior_wordle, prior_wordle.guess_2)
         graph_string += "}"
 
         pyperclip.copy(graph_string)
-    context = {'words': words, 'word': word, 'graph_string': graph_string, "first_word": first_word, "second_word_array": second_word_array}
+    context = {'words': words, 'word': word, 'graph_string': graph_string, "first_word": first_word, "second_word_array": second_word_array, "general": general}
     return render(request, "wordle_graph.html", context)
 
 def wordle(request):
@@ -498,5 +498,99 @@ def get_words(letters):
 
     return all_words
 
+def get_wordle_prior(word_dict):
+    if not word_dict: return None
+    prior = None
+    word = word_dict['word']
+    guesses = [word_dict['guess_1'], word_dict['guess_2'], word_dict['guess_3'], word_dict['guess_4'], word_dict['guess_5'], word_dict['guess_6'], ]
+    for guess in guesses:
+        if guess != word and guess != "None" and guess is not None: prior = guess
+        # print("Get prior:", word, guess, prior)
+    if not prior: prior = "No prior"
+    # print(f"Get prior: {prior} => {word}")
+    return prior
+
+def valid_wordle(word, word_list):
+    result = True
+    guess = [word['guess_1'], word['guess_2'], word['guess_3'], word['guess_4'], word['guess_5'], word['guess_6'], ]
+    # print('word', word)
+    # print('guess', guess)
+    for x in range(5):
+        guess_dict_next = next((w for w in word_list if w.get('word') == guess[x+1]), None)
+        guess_next_prior = get_wordle_prior(guess_dict_next)
+        if guess[x] != word['word'] and guess[x] != guess_next_prior and guess[x] != "None": result = False
+        # print(f"Guess {x}: '{guess_next_prior}', '{guess[x]}', {result}")
+
+        # if guess[x + 1] and guess[x] and guess[x + 1].prior() != guess[x].word: result = False
+    # if result:
+    #     print(word['word'].upper(), "- valid")
+    # else:
+    #     print(word['word'].upper(), "- not valid")
+    return result
+
+def test_all_wordles():
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
+    word_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
+
+    for word in word_list:
+        is_valid = valid_wordle(word, word_list)
+        if not is_valid:
+            invalid_wordle = Wordle.objects.get(word=word['word'])
+            invalid_wordle.last_reviewed = None
+            invalid_wordle.save()
+            print("Resetting:", invalid_wordle)
+
+def wordle_validation(request, id=None):
+    if not request.user.is_authenticated: return redirect("login")
+    general = General.objects.get(name="main")
+
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
+    word_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
+
+    wordle = None
+    if id:
+        wordle = Wordle.objects.get(id=id)
+        word = next((w for w in word_list if w.get('id') == int(id)), None)
+        print(f"The word is: '{word}'")
+        is_valid = valid_wordle(word, word_list)
+        solve_wordle(wordle)
+
+    invalid_wordles = []
+    count_total, count_invalid = 0, 0
+    for word in word_list:
+        count_total += 1
+        is_valid = valid_wordle(word, word_list)
+        if not is_valid:
+            count_invalid += 1
+            invalid_wordle = Wordle.objects.get(word=word['word'])
+            invalid_wordles.append(invalid_wordle)
+            solve_wordle(invalid_wordle)
+            # break
+        print(f"Valid {word['word']} {is_valid} [{count_invalid}/{count_total} of {len(word_list)}]")
+        if len(invalid_wordles) >= 10: break
 
 
+    context = {'wordles': wordles, 'invalid_wordles': invalid_wordles, 'word_list': word_list, 'wordle': wordle, 'general': general}
+    return render(request, "wordle_validation.html", context)
+
+def wordle_validation_old(request, id=None):
+    if not request.user.is_authenticated: return redirect("login")
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
+
+    invalid_wordles = []
+
+    # Evaluate the 'valid' function for each instance
+    for wordle in wordles:
+        if not wordle.valid():
+            invalid_wordles.append(wordle)
+            break
+        if len(invalid_wordles) > 3: break
+
+    wordle = None
+    if id:
+        wordle = Wordle.objects.get(id=id)
+        solve_wordle(wordle)
+    general = General.objects.get(name="main")
+
+    context = {'wordles': wordles, 'invalid_wordles': invalid_wordles, 'wordle': wordle, 'general': general}
+    return render(request, "wordle_validation.html", context)

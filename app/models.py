@@ -433,6 +433,9 @@ class MaxTemp(Model):
     max = IntegerField(null=True)
     def __str__(self): return f"{self.date}: Max {self.max}"
 
+def get_wordle(word):
+    return Wordle.objects.filter(word=word).first()
+
 class Wordle(Model):
     string_name = "Wordle"
     word = CharField(max_length=5, null=True)
@@ -453,8 +456,15 @@ class Wordle(Model):
             return f"{self.word} ({self.date})"
         else:
             return self.word
+
     def guesses(self):
         return self.guess_1, self.guess_2, self.guess_3, self.guess_4, self.guess_5, self.guess_6,
+
+    def guesses_w(self):
+        return get_wordle(self.guess_1), get_wordle(self.guess_2), get_wordle(self.guess_3), get_wordle(self.guess_4), get_wordle(self.guess_5), get_wordle(self.guess_6),
+
+    def prior_w(self):
+        return get_wordle(self.prior())
 
     def prior(self):
         prior = None
@@ -463,18 +473,26 @@ class Wordle(Model):
         if not prior: prior = "No prior"
         return prior
 
+    def valid(self):
+        result = True
+        guess = self.guesses_w()
+        for x in range(5):
+            if guess[x + 1] and guess[x] and guess[x + 1].prior() != guess[x].word: result = False
+        print("Valid:", self, result)
+        return result
+
 
     def upper(self): return self.word.upper()
     def save_guess(self, guess, count):
         if guess is None: return
         guess_str = guess.word[0:5]
-        if count == 1:
-            self.guess_1 = guess_str
-            self.guess_2 = None
-            self.guess_3 = None
-            self.guess_4 = None
-            self.guess_5 = None
-            self.guess_6 = None
+        if count == 1: self.guess_2 = None
+        if count <= 2: self.guess_3 = None
+        if count <= 3: self.guess_4 = None
+        if count <= 4: self.guess_5 = None
+        if count <= 5: self.guess_6 = None
+
+        if count == 1: self.guess_1 = guess_str
         if count == 2: self.guess_2 = guess_str
         if count == 3: self.guess_3 = guess_str
         if count == 4: self.guess_4 = guess_str

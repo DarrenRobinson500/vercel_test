@@ -1,0 +1,24 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Wordle Validation</h1>
+
+<h2>{{ wordle }}</h2>
+{{ wordle.guesses }}<br>
+
+{% for word in wordle.guesses_w %}
+    {% if word %} {% if word.prior != "No prior" %}<a href="{% url 'wordle_validation' word.prior_w.id %}" >{{ word.prior_w }}</a> => {% endif %}<a href="{% url 'wordle_validation' word.id %}" >{{ word }}</a><br>{% endif %}
+{% endfor %}
+Valid: {{ wordle.valid }}
+
+<h2>Invalid words ({{ invalid_wordles | length }})</h2>
+{% for word in invalid_wordles %}
+    <a href="{% url 'wordle_validation' word.id %}" >{{ word }}</a> {{ word.guesses }}<br>
+{% endfor %}
+
+<h2>All remaining words</h2>
+{% for word in wordles %}
+    <a href="{% url 'wordle_validation' word.id %}" >{{ word }}</a>
+{% endfor %}
+
+
+{% endblock %}
