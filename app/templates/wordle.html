@@ -56,10 +56,10 @@
     <div class="col-sm-3">
         <h2>Words</h2>
         Count: {{ words | length }} <br>
-        Favourite Word: {{ fav_word }}<br>
+        Favourite Word: {{ fav_word | upper }}<br>
         <br>
         {% for word in words %}
-            {{ word.upper }} {% if word.score %} ({{ word.score }}) {% endif %}<br>
+            {{ word.word | upper }} {% if word.score %} ({{ word.score }}) {% endif %}<br>
         {% endfor %}<br>
         <a href="{% url 'add_wordle' fav_word %}" class='btn btn-yak btn-sm' >Add '{{ fav_word }}'</a><br>
     </div>
@@ -69,7 +69,7 @@
             {{ item }}<br>
         {% endfor %}
         <h2>Random</h2>
-        {{ random_item.upper }}
+        {{ random_item.word | upper }}
         <h2>Used words</h2>
         {% for word in used_words %}
             <a href="{% url 'wordle_clear' word.id %}">'{{ word.word.upper }}'</a>
