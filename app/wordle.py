@@ -328,11 +328,15 @@ def categorise_attempts(categories):
 
 def categorise_second_word():
     categories_second_word = Wordle.objects.filter(date__isnull=True).values('guess_2').annotate(count=Count('guess_2'))
+    second_words = Wordle.objects.filter(attempts=2)
     second_word_array = []
     for category in categories_second_word:
-        hard_words_2 = 0
-        second_word_array.append((category['guess_2'], category['count'], hard_words_2))
-    array = sorted(second_word_array, key=lambda x: (x[1] is None, x[1]), reverse=True)
+        hard_words = 0
+        second_word_wordle = second_words.filter(word=category['guess_2']).first()
+        if second_word_wordle:
+            hard_words = second_word_wordle.hard_words
+        second_word_array.append((category['guess_2'], category['count'], hard_words))
+    array = sorted(second_word_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0:30]
     array_1 = array[0: 10]
     array_2 = array[10: 20]
     array_3 = array[20: 30]
@@ -362,8 +366,8 @@ def wordle_remaining(request, id=None):
 
     wordles = Wordle.objects.filter(date__isnull=True).order_by('word')
     categories = Wordle.objects.filter(date__isnull=True).values('attempts').annotate(count=Count('attempts'))
-    remaining_words = Wordle.objects.filter(date__isnull=True)
-    remaining_words_not_tested = remaining_words.filter(last_reviewed__isnull=True)
+    # remaining_words = Wordle.objects.filter(date__isnull=True)
+    remaining_words_not_tested = wordles.filter(last_reviewed__isnull=True)
 
     # Categorisation of attempts
     attempts_range, score = categorise_attempts(categories)
@@ -379,11 +383,11 @@ def wordle_remaining(request, id=None):
     # Categorisation of date solved
     date_solved_array = categorise_date_solved()
 
-    message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(remaining_words))*100)}% ({len(remaining_words) - len(remaining_words_not_tested)} of {len(remaining_words)})"
-    message_2 = f"Hard words: {hard_words} ({int(hard_words/len(remaining_words)*1000)/10}%)"
+    message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(wordles))*100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(remaining_words)})"
+    message_2 = f"Hard words: {hard_words} ({int(hard_words/len(wordles)*1000)/10}%)"
 
     context = {'wordle': wordle, 'input_array': input_array, 'words': wordles, 'attempts_range': attempts_range,
-               'remaining_words': remaining_words, 'score': score, 'date_solved_array': date_solved_array,
+               'score': score, 'date_solved_array': date_solved_array,
                'second_word_array': second_word_array,
                "message": message, "message_2": message_2, 'general': general}
 
@@ -397,8 +401,8 @@ def wordle_remaining_second_word(request, second_word=None):
 
     wordles = Wordle.objects.filter(date__isnull=True, guess_2=second_word).order_by('word')
     categories = Wordle.objects.filter(date__isnull=True, guess_2=second_word).values('attempts').annotate(count=Count('attempts'))
-    remaining_words = Wordle.objects.filter(date__isnull=True, guess_2=second_word)
-    remaining_words_not_tested = remaining_words.filter(last_reviewed__isnull=True, guess_2=second_word)
+    # remaining_words = Wordle.objects.filter(date__isnull=True, guess_2=second_word)
+    remaining_words_not_tested = wordles.filter(last_reviewed__isnull=True, guess_2=second_word)
 
     # Categorisation of attempts
     attempts_range, score = categorise_attempts(categories)
@@ -407,6 +411,8 @@ def wordle_remaining_second_word(request, second_word=None):
     hard_words = 0
     for attempts, count in attempts_range:
         if attempts >= 5: hard_words += count
+    second_wordle.hard_words = hard_words
+    second_wordle.save()
 
     # Categorisation of second word
     second_word_array = categorise_second_word()
@@ -414,12 +420,12 @@ def wordle_remaining_second_word(request, second_word=None):
     # Categorisation of date solved
     date_solved_array = categorise_date_solved()
 
-    message = f"Proportion of words tested: {int((1 - len(remaining_words_not_tested) / len(remaining_words)) * 100)}% ({len(remaining_words) - len(remaining_words_not_tested)} of {len(remaining_words)})"
-    message_2 = f"Hard words: {hard_words} ({int(hard_words / len(remaining_words) * 1000) / 10}%)"
+    message = f"Proportion of words tested: {int((1 - len(remaining_words_not_tested) / len(wordles)) * 100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(remaining_words)})"
+    message_2 = f"Hard words: {hard_words} ({int(hard_words / len(wordles) * 1000) / 10}%)"
 
     context = {'wordle': wordle, 'second_word': second_word, 'input_array': input_array, 'words': wordles,
                'attempts_range': attempts_range,
-               'remaining_words': remaining_words, 'score': score, 'date_solved_array': date_solved_array,
+               'score': score, 'date_solved_array': date_solved_array,
                'second_word_array': second_word_array,
                "message": message, "message_2": message_2, 'general': general}
     return render(request, "wordle_remaining.html", context)
@@ -477,8 +483,8 @@ def wordle_validation(request, id=None):
             count_invalid += 1
             invalid_wordle = Wordle.objects.get(word=word['word'])
             invalid_wordles.append(invalid_wordle)
-            solve_wordle(invalid_wordle)
-        if len(invalid_wordles) >= 10: break
+            # solve_wordle(invalid_wordle)
+        if len(invalid_wordles) >= 1: break
 
     context = {'wordles': wordles, 'invalid_wordles': invalid_wordles, 'word_list': word_list, 'wordle': wordle, 'general': general}
     return render(request, "wordle_validation.html", context)

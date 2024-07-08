@@ -20,7 +20,7 @@
         Future Average Score: <b>{{ score }}</b> (originally 3.47)<br>
         {% if message %}{{ message }}{% endif %}<br>
         {% if message_2 %}{{ message_2 }}{% endif %}<br><br>
-        <a href="{% url 'wordle_remaining' %}" class='btn btn-yak'>Redo</a><br>
+        <a href="{% url 'solve_many_request' %}" class='btn btn-yak'>Solve Many ({{ general.wordles_to_do }})</a><br>
     </div>
     {% if date_solved_array %}
     <div class="col-sm-2">
