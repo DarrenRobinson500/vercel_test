@@ -601,6 +601,11 @@ def reduce_remaining_list(input_array, remaining_words):
 
 remaining_list = []
 
+def update_remaining_list():
+    global remaining_list
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
+    remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
+
 def get_fav_word_2():
     global remaining_list
     all_letters = ""
@@ -668,41 +673,22 @@ def wordle(request):
             if x == "" or y == "": valid = False
         if valid:
             input_array.append(input)
-        print("Remaining list (Post - before reducing)", len(remaining_list))
-        print(remaining_list)
         remaining_list = reduce_remaining_list(input_array, remaining_list)
-        print("Remaining list (Post - after reducing)", len(remaining_list))
-        print(remaining_list)
     else:
-        wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
-        remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
-        print("Remaining list (Non-post)", len(remaining_list), "words")
+        update_remaining_list()
 
     counter, fav_word = get_fav_word_2()
-    print("Counter")
-    print(counter)
-    print("Fav word", fav_word)
-
-    # Retrieve the words again (so that they have the new scores)
-    # words = Wordle.objects.filter(score__gte=1)
-    # random_item = Wordle.objects.filter(date__isnull=True).order_by('?').first()
 
     random_item = random.choice(remaining_list)
 
     if fav_word:
         entry = list(fav_word)
     else:
+        update_remaining_list()
         entry = list("arise")
-    print("Remaining list (top 5)")
-    print(remaining_list[0:5])
     words = sorted(remaining_list, key=lambda x: x['score'], reverse=True)[0:99]
-    print("Words")
-    print(words)
     green1, green2, green3, green4, green5 = "", "", "", "", "",
     numbers = ["1x", "2x", "3x", "4x", "5x", ]
-
-    # print("Input array (post):", input_array)
-    # used_words = Wordle.objects.filter(date__isnull=False).order_by('-date')[0:10]
 
     context = {'words': words, 'numbers': numbers, 'fav_word': fav_word, 'input_array': input_array, 'counter': counter,
                'random_item': random_item,
