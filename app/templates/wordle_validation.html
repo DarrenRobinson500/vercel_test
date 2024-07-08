@@ -12,7 +12,7 @@ Valid: {{ wordle.valid }}
 
 <h2>Invalid words ({{ invalid_wordles | length }})</h2>
 {% for word in invalid_wordles %}
-    <a href="{% url 'wordle_validation' word.id %}" >{{ word }}</a> {{ word.guesses }}<br>
+    <a href="{% url 'wordle_validation' word.id %}" >{{ word }}</a> {{ word.guesses }} [{{ word.last_reviewed }}]<br>
 {% endfor %}
 
 <h2>All remaining words</h2>

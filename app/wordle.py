@@ -220,6 +220,13 @@ def solve_wordle(wordle):
     input_array.append(input_row)
 
     # Update Database
+    wordle.guess_1 = None
+    wordle.guess_2 = None
+    wordle.guess_3 = None
+    wordle.guess_4 = None
+    wordle.guess_5 = None
+    wordle.guess_6 = None
+
     if len(attempts) > 0: wordle.guess_1 = attempts[0]
     if len(attempts) > 1: wordle.guess_2 = attempts[1]
     if len(attempts) > 2: wordle.guess_3 = attempts[2]
@@ -482,9 +489,12 @@ def wordle_validation(request, id=None):
         if not is_valid:
             count_invalid += 1
             invalid_wordle = Wordle.objects.get(word=word['word'])
+            if invalid_wordle.last_reviewed:
+                invalid_wordle.last_reviewed = None
+                invalid_wordle.save()
             invalid_wordles.append(invalid_wordle)
             # solve_wordle(invalid_wordle)
-        if len(invalid_wordles) >= 1: break
+        if len(invalid_wordles) >= 30: break
 
     context = {'wordles': wordles, 'invalid_wordles': invalid_wordles, 'word_list': word_list, 'wordle': wordle, 'general': general}
     return render(request, "wordle_validation.html", context)
