@@ -4,9 +4,9 @@
 <div class="row">
     <div class="col-sm-4">
         {% if second_word %}
-            <h2>{{ second_word | upper }}</h2>
+            <h2>Second Word: {{ second_word | upper }}</h2>
         {% else %}
-            <h2>Solution: {{word}}</h2>
+            <h2>Solution: {{wordle | upper }}</h2>
         {% endif %}
         <table class='table table-sm' style="text-align: center;">
             {% for word in input_array %}
@@ -26,36 +26,24 @@
     <div class="col-sm-2">
         <h2>Date Solved</h2>
         {% for date_solved, count in date_solved_array %}
-            <a href="{% url 'wordle_last_reviewed' date_solved %}">{{ date_solved | date:"j M" }}</a>
+            {{ date_solved | date:"j M" }}
             : {{ count }}<br>
         {% endfor %}<br>
     </div>
     {% endif %}
-    {% if second_word_array_1 %}
+    {% if second_word_array %}
     <div class="col-sm-5">
         <h2>Second Words</h2>
         <div class="row">
-            <div class="col-sm-4">
-                {% for word, count, hard_words in second_word_array_1 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
-                <br>
-                {% endfor %}<br>
-            </div>
-            <div class="col-sm-4">
-                {% for word, count, hard_words in second_word_array_2 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
-                <br>
-                {% endfor %}<br>
-            </div>
-            <div class="col-sm-4">
-                {% for word, count, hard_words in second_word_array_3 %}
-                    <a href="{% url 'wordle_remaining' 0 word %}">{{ word | upper }}</a>: {{ count }}
-                    {% if hard_words is not None %} ({{ hard_words }}){% endif %}
-                <br>
-                {% endfor %}<br>
-            </div>
+            {% for array in second_word_array %}
+                <div class="col-sm-4">
+                    {% for word, count, hard_words in array %}
+                        <a href="{% url 'wordle_remaining_second_word' word %}">{{ word | upper }}</a>: {{ count }}
+                        {% if hard_words is not None %} ({{ hard_words }}){% endif %}
+                    <br>
+                    {% endfor %}<br>
+                </div>
+            {% endfor %}
         </div>
     </div>
     {% endif %}
