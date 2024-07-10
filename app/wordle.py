@@ -390,7 +390,7 @@ def wordle_remaining(request, id=None):
     # Categorisation of date solved
     date_solved_array = categorise_date_solved()
 
-    message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(wordles))*100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(remaining_words)})"
+    message = f"Proportion of words tested: {int((1-len(remaining_words_not_tested)/len(wordles))*100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(wordles)})"
     message_2 = f"Hard words: {hard_words} ({int(hard_words/len(wordles)*1000)/10}%)"
 
     context = {'wordle': wordle, 'input_array': input_array, 'words': wordles, 'attempts_range': attempts_range,
@@ -427,7 +427,7 @@ def wordle_remaining_second_word(request, second_word=None):
     # Categorisation of date solved
     date_solved_array = categorise_date_solved()
 
-    message = f"Proportion of words tested: {int((1 - len(remaining_words_not_tested) / len(wordles)) * 100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(remaining_words)})"
+    message = f"Proportion of words tested: {int((1 - len(remaining_words_not_tested) / len(wordles)) * 100)}% ({len(wordles) - len(remaining_words_not_tested)} of {len(wordles)})"
     message_2 = f"Hard words: {hard_words} ({int(hard_words / len(wordles) * 1000) / 10}%)"
 
     context = {'wordle': wordle, 'second_word': second_word, 'input_array': input_array, 'words': wordles,
