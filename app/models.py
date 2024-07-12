@@ -445,6 +445,7 @@ class Wordle(Model):
     guess_4 = CharField(max_length=5, null=True, blank=True)
     guess_5 = CharField(max_length=5, null=True, blank=True)
     guess_6 = CharField(max_length=5, null=True, blank=True)
+    colours = CharField(max_length=50, null=True, blank=True)
     date = DateField(null=True, blank=False)
     last_reviewed = DateField(null=True, blank=False, default=None)
     score = IntegerField(null=True, blank=True)
@@ -480,7 +481,6 @@ class Wordle(Model):
             if guess[x + 1] and guess[x] and guess[x + 1].prior() != guess[x].word: result = False
         print("Valid:", self, result)
         return result
-
 
     def upper(self): return self.word.upper()
     def save_guess(self, guess, count):

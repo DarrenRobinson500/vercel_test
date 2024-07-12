@@ -147,6 +147,12 @@ def solve_wordle_old(wordle):
 # --------------------------------------------
 # -------- UTILITIES LIST APPROACH ------------
 # --------------------------------------------
+
+def remaining_list_add_all_words():
+    global remaining_list
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('id')
+    remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
+
 def reduce_remaining_list(input_array, remaining_words):
     new_remaining_list = []
     for word in remaining_words:
@@ -159,13 +165,9 @@ def reduce_remaining_list(input_array, remaining_words):
         if valid: new_remaining_list.append(word)
     return new_remaining_list
 
-def remaining_list_add_all_words():
-    global remaining_list
-    wordles = Wordle.objects.filter(date__isnull=True).order_by('?')
-    remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
-
 def get_fav_word_2():
     global remaining_list
+    # print("Get fav word", len(remaining_list))
     all_letters = ""
     for word_dict in remaining_list:
         unique_letters = set(word_dict['word'])
@@ -191,10 +193,27 @@ def get_fav_word_2():
     for key, value in counter.most_common(10):
         counter_list.append(f"{key.upper()}: {value}")
 
-    return counter_list, fav_word['word']
+    if fav_word:
+        return counter_list, fav_word['word']
+    else:
+        remaining_list_add_all_words()
+        return counter_list, None
+
+def get_colours(input_array):
+    string = ""
+    for attempt in input_array:
+        for letter in attempt:
+            if letter[1] == "Grey":
+                string += "X"
+            else:
+                string += letter[1][0].upper()
+        string += ","
+    # print("Get colours:", string)
+    return string
 
 def solve_wordle(wordle):
     global remaining_list
+    remaining_list_add_all_words()
     word = wordle.word
     input_array.clear()
     remaining_list_add_all_words()
@@ -218,6 +237,8 @@ def solve_wordle(wordle):
     colours = determine_colours(word, fav_word)
     for x in range(5): input_row.append((fav_word[x], colours[x]))
     input_array.append(input_row)
+
+    wordle.colours = get_colours(input_array)
 
     # Update Database
     wordle.guess_1 = None
@@ -276,6 +297,7 @@ def test_all_wordles():
     return reset_wordles
 
 
+
 # ------------------------------------
 # -------- URLS (Secondary) ------------
 # ------------------------------------
@@ -314,8 +336,12 @@ def clear(request):
 # ------------------------------------
 
 def solve_many():
+    print("Solve Many")
     wordles_to_do = General.objects.get(name="main").wordles_to_do
     wordles = Wordle.objects.filter(last_reviewed__isnull=True, date__isnull=True).order_by('?')[0:wordles_to_do]
+    if len(wordles) == 0:
+        print("All wordles have a last reviewed date. Adding more colour")
+        wordles = Wordle.objects.filter(colours__isnull=True, date__isnull=True).order_by('?')[0:wordles_to_do]
     for wordle in wordles:
         if wordle:
             print(f"Redoing '{wordle.word.upper()}'")
@@ -358,8 +384,10 @@ def categorise_date_solved():
     date_solved_array = sorted(date_solved_array, key=lambda x: (x[0] is None, x[0]))
     return date_solved_array
 
-def solve_many_request(request):
+def solve_many_request(request, dest):
     solve_many()
+    if dest == "tree":
+        return redirect("wordle_tree")
     return redirect("wordle_remaining")
 
 def wordle_remaining(request, id=None):
@@ -493,7 +521,7 @@ def wordle_validation(request, id=None):
                 invalid_wordle.last_reviewed = None
                 invalid_wordle.save()
             invalid_wordles.append(invalid_wordle)
-            # solve_wordle(invalid_wordle)
+            solve_wordle(invalid_wordle)
         if len(invalid_wordles) >= 30: break
 
     context = {'wordles': wordles, 'invalid_wordles': invalid_wordles, 'word_list': word_list, 'wordle': wordle, 'general': general}
@@ -559,3 +587,82 @@ def wordle(request):
                'general': general}
 
     return render(request, 'wordle.html', context)
+
+def letters_to_colours(array):
+    new_array = []
+    for letter in array:
+        if letter == "G": new_array.append("Green")
+        if letter == "O": new_array.append("Orange")
+        if letter == "X": new_array.append("Grey")
+    return new_array
+
+def remaining_list_add_all_words():
+    global remaining_list
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('id')
+    remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
+
+
+def wordle_tree(request, id=None):
+    global remaining_list
+    general = General.objects.get(name="main")
+    input_array = []
+    if id:
+        wordle = Wordle.objects.get(id=id)
+        solve_wordle(wordle)
+
+    wordles = Wordle.objects.filter(colours__isnull=False).order_by("colours")
+    word_list = list(wordles.values("id", "word", "colours", "attempts", 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
+
+    error = all(x.colours == wordles[0].colours for x in wordles)
+    print("Error:", error)
+
+    wordles = Wordle.objects.filter(date__isnull=True).order_by('id')
+    remaining_list_full = list(wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
+
+    wordles_no_colour = Wordle.objects.filter(colours__isnull=True, date__isnull=True).order_by('id')
+
+
+    # print("Word list:\n", word_list)
+    for word in word_list:
+        # print("\nWord:", word['word'])
+        # remaining_list_add_all_words()
+        remaining_list = remaining_list_full.copy()
+        input_array.clear()
+        fav_word = "arise"
+        colours = word['colours'].split(",")
+        # print(colours)
+        for colour in colours:
+            if colour == "": continue
+            input_row = []
+            col = letters_to_colours(colour)
+            for x in range(5): input_row.append((fav_word[x], col[x]))
+            input_array.append(input_row)
+
+            remaining_list = reduce_remaining_list(input_array, remaining_list)
+            # print("Remaining words:", len(remaining_list))
+            # print("Input array:", input_array)
+            counter, fav_word = get_fav_word_2()
+            # print("Fav word:", fav_word)
+        print("Input:", word['word'], "Output:", fav_word)
+        word['predicted'] = fav_word
+
+    context = {'general': general, "word_list": word_list, "wordles": wordles_no_colour, "error": error}
+    return render(request, "wordle_tree.html", context)
+
+def wordle_more_colour(request):
+    wordles_to_do = General.objects.get(name="main").wordles_to_do
+    remaining_list_add_all_words()
+    wordles = Wordle.objects.filter(last_reviewed__isnull=True, colours__isnull=True).order_by('?')[0:wordles_to_do]
+    general = General.objects.get(name="main")
+
+    for wordle in wordles:
+        if wordle:
+            print(f"Redoing '{wordle.word.upper()}'")
+            solve_wordle(wordle)
+
+    wordles = Wordle.objects.filter(colours__isnull=False)
+    word_list = list(wordles.values("id", "word", "colours", "attempts", 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
+
+    context = {'general': general, "word_list": word_list}
+    return render(request, "wordle_cat.html", context)
+

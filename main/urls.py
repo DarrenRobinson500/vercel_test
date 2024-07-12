@@ -74,8 +74,11 @@ urlpatterns = [
     # path('wordle_last_reviewed/<last_reviewed>', wordle_last_reviewed, name='wordle_last_reviewed'),
     path('wordle_remaining/<id>', wordle_remaining, name='wordle_remaining'),
     path('wordle_remaining_second_word/<second_word>', wordle_remaining_second_word, name='wordle_remaining_second_word'),
-    path('solve_many_request', solve_many_request, name='solve_many_request'),
+    path('solve_many_request/<dest>', solve_many_request, name='solve_many_request'),
     path('wordle/<entry>', wordle, name='wordle'),
+    path('wordle_tree', wordle_tree, name='wordle_tree'),
+    path('wordle_more_colour', wordle_more_colour, name='wordle_more_colour'),
+    path('wordle_tree/<id>', wordle_tree, name='wordle_tree'),
 
     path('wordle_clear/<id>', wordle_clear, name='wordle_clear'),
     # path('wordle_second/<word>', wordle_second, name='wordle_second'),
