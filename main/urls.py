@@ -16,8 +16,6 @@ urlpatterns = [
     path("home", home, name="home"),
     path('login/', login_user, name="login"),
     path('logout/', logout_user, name="logout"),
-    # path("utility", utility, name="utility"),
-    # path("utility_2", utility_2, name="utility_2"),
     path("load_data", load_data, name="load_data"),
     path("load_data_ind/<model_name>", load_data_ind, name="load_data_ind"),
     path('downloadexcel', downloadexcel, name="downloadexcel"),
@@ -63,15 +61,12 @@ urlpatterns = [
     path("shopping_clear", shopping_clear, name="shopping_clear"),
 
     # Games
-    # path("clash", clash, name="clash"),
-    # path("hero_inc/<id>/<hero>", hero_inc, name="hero_inc"),
     path('wordle', wordle, name='wordle'),
     path('wordle_graph/', wordle_graph, name='wordle_graph'),
     path('wordle_validation', wordle_validation, name='wordle_validation'),
     path('wordle_validation/<id>', wordle_validation, name='wordle_validation'),
     path('wordle_graph/<word>', wordle_graph, name='wordle_graph'),
     path('wordle_remaining', wordle_remaining, name='wordle_remaining'),
-    # path('wordle_last_reviewed/<last_reviewed>', wordle_last_reviewed, name='wordle_last_reviewed'),
     path('wordle_remaining/<id>', wordle_remaining, name='wordle_remaining'),
     path('wordle_remaining_second_word/<second_word>', wordle_remaining_second_word, name='wordle_remaining_second_word'),
     path('solve_many_request/<dest>', solve_many_request, name='solve_many_request'),
@@ -81,21 +76,10 @@ urlpatterns = [
     path('wordle_tree/<id>', wordle_tree, name='wordle_tree'),
 
     path('wordle_clear/<id>', wordle_clear, name='wordle_clear'),
-    # path('wordle_second/<word>', wordle_second, name='wordle_second'),
     path('add_wordle/<word>', add_wordle, name='add_wordle'),
-    # path('past_words', past_words, name='past_words'),
-    # path('word', word, name='word'),
     path('clear', clear, name='clear'),
 
     path('sudoku', sudoku, name='sudoku'),
-    # path('timers', timers, name='timers'),
-    # path('timer/<id>', timer, name='timer'),
-    # path('tides', tides, name='tides'),
-    # path('tennis', tennis, name='tennis'),
-    # path('tennis_match_start', tennis_match_start, name='tennis_match_start'),
-    # path('tennis_match/<id>', tennis_match, name='tennis_match'),
-    # path('tennis_score/<id>/<a>/<b>', tennis_score, name='tennis_score'),
-    # path('tennis_delete_game/<id>', tennis_delete_game, name='tennis_delete_game'),
     path("ckeditor5/", include("django_ckeditor_5.urls"), name="ck_editor_5_upload_file"),
 ]
 
