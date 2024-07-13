@@ -601,6 +601,31 @@ def remaining_list_add_all_words():
     wordles = Wordle.objects.filter(date__isnull=True).order_by('id')
     remaining_list = wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6')
 
+def get_prior_colours(colours):
+    result = ""
+    for colour in colours[0:-3]:
+        result += colour.replace("'", "") + ","
+    result += "GGGGG,"
+    return result
+
+def get_priors(current_word, colours, full_list):
+    if current_word['word'] == 'arise': return 'arise'
+    result = "arise"
+    colour_string = ""
+    for colour in colours[:-1]:
+        colour_string += colour.replace("'", "") + ","
+        word = next((word for word in full_list if word["colours"] == colour_string + "GGGGG,"), None)
+        if not word:
+            word = next((word for word in full_list if word["colours"] == colour_string), None)
+        if word:
+            # print("Colour string and word:", colour_string, word['word'])
+            if result != "": result += " -> "
+            result += word['word']
+            if current_word['word'] == word['word']: break
+        # else:
+        #     print(f"Colour string: '{colour_string}'. No word found")
+    return result
+
 
 def wordle_tree(request, id=None):
     global remaining_list
@@ -610,14 +635,11 @@ def wordle_tree(request, id=None):
         wordle = Wordle.objects.get(id=id)
         solve_wordle(wordle)
 
-    wordles = Wordle.objects.filter(colours__isnull=False).order_by("colours")
+    wordles = Wordle.objects.filter(date__isnull=True, colours__isnull=False).order_by("colours")
     word_list = list(wordles.values("id", "word", "colours", "attempts", 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
 
-    error = all(x.colours == wordles[0].colours for x in wordles)
-    print("Error:", error)
-
     wordles = Wordle.objects.filter(date__isnull=True).order_by('id')
-    remaining_list_full = list(wordles.values('id', 'word', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
+    remaining_list_full = list(wordles.values('id', 'word', 'colours', 'guess_1', 'guess_2', 'guess_3', 'guess_4', 'guess_5', 'guess_6'))
 
     wordles_no_colour = Wordle.objects.filter(colours__isnull=True, date__isnull=True).order_by('id')
 
@@ -630,23 +652,30 @@ def wordle_tree(request, id=None):
         input_array.clear()
         fav_word = "arise"
         colours = word['colours'].split(",")
+        # prior_colours = get_prior_colours(colours)
+        # word['prior_colours'] = prior_colours
+        word['priors'] = get_priors(word, colours, remaining_list_full)
+        word['first_colour'] = colours[0]
         # print(colours)
         for colour in colours:
             if colour == "": continue
             input_row = []
             col = letters_to_colours(colour)
-            for x in range(5): input_row.append((fav_word[x], col[x]))
-            input_array.append(input_row)
+            if fav_word:
+                for x in range(5): input_row.append((fav_word[x], col[x]))
+                input_array.append(input_row)
 
-            remaining_list = reduce_remaining_list(input_array, remaining_list)
+                remaining_list = reduce_remaining_list(input_array, remaining_list)
             # print("Remaining words:", len(remaining_list))
             # print("Input array:", input_array)
             counter, fav_word = get_fav_word_2()
             # print("Fav word:", fav_word)
         print("Input:", word['word'], "Output:", fav_word)
+        # print()
         word['predicted'] = fav_word
 
-    context = {'general': general, "word_list": word_list, "wordles": wordles_no_colour, "error": error}
+    # wordles_no_colour = None
+    context = {'general': general, "word_list": word_list, "wordles": wordles_no_colour}
     return render(request, "wordle_tree.html", context)
 
 def wordle_more_colour(request):
